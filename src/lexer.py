@@ -22,6 +22,7 @@ class TomlLexer:
     def build(self,**kwargs):
         self.lexer = lex.lex(module=self, **kwargs)
         self.lexer.array_num = 0
+        self.lexer.inline_table_num = 0
 
     def print_toks(self, data):
         self.lexer.input(data)
@@ -61,12 +62,19 @@ class TomlLexer:
     )
     
     # Literal token definiton.
-    t_ANY_RBRACKET   = r'\}'
     t_ANY_COMMA      = r'\,'
     t_ANY_DOT        = r'\.'
     def t_ANY_LBRACKET(self, t): 
         r'\{'
         t.lexer.begin('INITIAL')
+        t.lexer.inline_table_num += 1
+        return t
+    
+    def t_ANY_RBRACKET(self, t):
+        r'\}'
+        t.lexer.inline_table_num -= 1
+        if t.lexer.inline_table_num==0 and t.lexer.array_num>0:
+            t.lexer.begin('VALUE')
         return t
 
     def t_EQUALS(self, t):
@@ -223,40 +231,43 @@ class TomlLexer:
         return t
 
     
-        
-data = """
+# dob = 1979-05-27T07:32:00-08:00
 
-# This is a TOML document
+#data = """
+#
+## This is a TOML document
+#
+#title = "TOML Example"
+#
+#[owner]
+#"name" = "Tom Preston-Werner"
+#
+#[database]
+#enabled = true
+#ports = [ 8000, 8001, 8002 ]
+#data = [ ["delta", "phi"], "asd" ]
+#temp_targets = [ { yo = 2 }, "79.5", 72.0 ]
+#
+#[servers]
+#
+#[servers.alpha]
+#ip = "10.0.0.1"
+#role = "frontend"
+#
+#[servers.beta]
+#ip = "10.0.0.2"
+#role = "backend"
+#
+#"""
 
-title = "TOML Example"
-
-[owner]
-"name" = "Tom Preston-Werner"
-dob = 1979-05-27T07:32:00-08:00
-
-[database]
-enabled = true
-ports = [ 8000, 8001, 8002 ]
-data = [ ["delta", "phi"], "asd" ]
-temp_targets = { cpu = 79.5, case = 72.0 }
-
-[servers]
-
-[servers.alpha]
-ip = "10.0.0.1"
-role = "frontend"
-
-[servers.beta]
-ip = "10.0.0.2"
-role = "backend"
-
-"""
-    
 tLex = TomlLexer()
 
 tLex.build()
+tokens = tLex.tokens
+lexer = tLex.lexer
 
-tLex.print_toks(data)
+
+#tLex.print_toks(data)
 
     
     
