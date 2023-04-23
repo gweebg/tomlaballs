@@ -191,12 +191,13 @@ def p_list(p):
 
 def p_list_values(p):
     "list_values : list_values COMMA value"
-    p[0] = [p[1],p[3]]
+    p[1].append(p[3])
+    p[0] = p[1]
     #print(p[0], " - list_values")
 
 def p_list_values_one(p): 
     "list_values : value"
-    p[0] = p[1]
+    p[0] = [p[1]]
     #print(p[0], " - list_values one")
 
 def p_inline_table(p):
