@@ -1,3 +1,5 @@
 autopep8==2.0.2
 ply==3.11
 pycodestyle==2.10.0
+
+pytest~=7.3.1
