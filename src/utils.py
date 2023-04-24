@@ -3,6 +3,7 @@ from datetime import datetime
 
 
 class DateType(Enum):
+
     OFFSET_DATETIME = 1
     LOCAL_DATETIME = 2
     LOCAL_DATE = 3
@@ -49,6 +50,7 @@ class DateValidator:
                 pass
 
         return valid
+
 
 """
 if __name__ == '__main__':

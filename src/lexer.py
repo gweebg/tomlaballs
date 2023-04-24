@@ -1,4 +1,5 @@
 import ply.lex as lex
+import re
 
 from ply.lex import LexToken
 
@@ -148,7 +149,8 @@ class TomlLexer:
         return t
 
     def t_VALUE_MULTILINE_STRING(self, t):
-        r'"""([^\\]|\\.|\n)*?"{3,5}'
+        r'"""([^\\]|\\(.|\n)|\n)*?"{3,5}'
+        t.value = re.sub(r"\\(\n|\r\n)\s+", "", t.value)
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
         return t
