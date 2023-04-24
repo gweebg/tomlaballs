@@ -5,7 +5,7 @@ from lexer import tokens
 def p_toml(p):
     "toml : top_level tables"
 
-    #add to dict
+    # add to dict
     p[1].update(p[2])
 
     p[0] = p[1]
@@ -24,7 +24,7 @@ def p_top_level_empty(p):
 def p_tables(p):
     "tables : tables table"
 
-    #add to tables
+    # add to tables
     p[1].update(p[2])
 
     p[0] = p[1]
