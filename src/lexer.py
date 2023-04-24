@@ -119,9 +119,15 @@ class TomlLexer:
         
     t_BARE_KEY = r'\w+'
 
-    t_STRING_KEY = r'"([^\\]|\\.)*?"'
+    def t_STRING_KEY(self, t):
+        r'"([^\\]|\\.)*?"'
+        t.value = t.value.rstrip('"').lstrip('"')
+        return t
 
-    t_STRING_LITERAL_KEY = r"'.*?'"
+    def t_STRING_LITERAL_KEY(self, t):
+        r"'.*?'"
+        t.value = t.value.rstrip("'").lstrip("'")
+        return t
 
 
     # Values
@@ -138,12 +144,14 @@ class TomlLexer:
         r'"([^\\]|\\.)*?"'
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
+        t.value = t.value.rstrip('"').lstrip('"')
         return t
 
     def t_VALUE_STRING_LITERAL(self, t):
         r"'.*?'"
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
+        t.value = t.value.rstrip('"').lstrip('"')
         return t
 
     def t_VALUE_MULTILINE_STRING(self, t):
