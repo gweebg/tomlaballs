@@ -112,7 +112,7 @@ class TomlLexer:
 
     # Keys
 
-    t_BARE_KEY = r'\w+'
+    t_BARE_KEY = r'[a-zA-Z0-9_-]+'
 
     def t_STRING_KEY(self, t):
         r'"([^\\]|\\.)*?"'
@@ -165,7 +165,7 @@ class TomlLexer:
 
     def t_VALUE_OFFSET_DATETIME(self, t):
         r'\d{4}-\d{2}-\d{2}[Tt ](\d{2}:\d{2}:\d{2}(\.\d+)?([Zz]|([-+]\d{2}:\d{2})))'
-        validate_date_format(t)
+        validate_date_format(t, DateType.OFFSET_DATETIME)
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
 
@@ -173,21 +173,21 @@ class TomlLexer:
 
     def t_VALUE_LOCAL_DATETIME(self, t):
         r'\d{4}-\d{2}-\d{2}[Tt ](\d{2}:\d{2}:\d{2}(\.\d+)?)'
-        validate_date_format(t)
+        validate_date_format(t, DateType.LOCAL_DATETIME)
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
         return t
 
     def t_VALUE_LOCAL_DATE(self, t):
         r'\d{4}-\d{2}-\d{2}'
-        validate_date_format(t)
+        validate_date_format(t, DateType.LOCAL_DATE)
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
         return t
 
     def t_VALUE_LOCAL_TIME(self, t):
         r'(\d{2}:\d{2}:\d{2}(\.\d+)?)'
-        validate_date_format(t)
+        validate_date_format(t, DateType.LOCAL_TIME)
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
         return t

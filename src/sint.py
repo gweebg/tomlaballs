@@ -1,6 +1,7 @@
 import ply.yacc as yacc
 from lexer import tokens
 import json
+from utils import to_bool
 
 class TableArray:
     l:list
@@ -21,6 +22,7 @@ class TableArray:
     
     def get_last(self):
         return self.l[len(self.l)-1]
+
 
 def insert_dotted_key_value_on_table(key, value, table):
 
@@ -276,7 +278,7 @@ def p_value_FLOAT(p):
 
 def p_value_BOOL(p):
     "value : BOOL"
-    p[0] = p[1]
+    p[0] = to_bool(p[1])
     print(p[0], " - value")
 
 
