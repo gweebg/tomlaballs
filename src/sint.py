@@ -2,17 +2,37 @@ import ply.yacc as yacc
 from lexer import tokens
 import json
 
+class TableArray:
+    l:list
+    def __init__(self) -> None:
+        self.l = []
+    
+    def __len__(self):
+        return len(self.l)
+    
+    def __str__(self):
+        return str(self.l)
 
-# asd.bsd = 2 asd.csd.dsd = 3
+    def __repr__(self):
+        return repr(self.l)
+
+    def append(self, val):
+        self.l.append(val)
+    
+    def get_last(self):
+        return self.l[len(self.l)-1]
+
 def insert_dotted_key_value_on_table(key, value, table):
 
     i = 0
     d = table
 
     while i < len(key):
+        if isinstance(d, TableArray):
+            d = d.get_last()
 
-        if not isinstance(d, dict):
-            print("-- Error: tried to insert value on a type that is not a table, key: ", key)
+        elif not isinstance(d, dict):
+            print("-- Error: expected table to insert value of key: ", key)
             parser.success = False
             return
 
@@ -34,6 +54,43 @@ def insert_dotted_key_value_on_table(key, value, table):
 
     d[key[i]] = value
 
+# asd.bsd 
+def insert_table_on_table_array(key, value, table):
+
+    i = 0
+    d = table
+
+    while i < len(key):
+        if isinstance(d, TableArray):
+            d = d.get_last()
+
+        elif not isinstance(d, dict):
+            print("-- Error: expected table to insert value of key: ", key)
+            parser.success = False
+            return
+
+        if key[i] not in d:
+            break
+
+        d = d[key[i]]
+        i += 1
+
+    if i==len(key):
+        if not isinstance(d, TableArray):
+            print("-- Error: expected table array to insert value of key :", key)
+            parser.success = False
+            return
+        d.append(value)
+
+    else:
+        while i < len(key) - 1:
+            d[key[i]] = {}
+            d = d[key[i]]
+            i += 1
+        
+        ta = TableArray()
+        ta.append(value)
+        d[key[i]] = ta
 
 def p_toml(p):
     "toml : top_level tables"
@@ -75,6 +132,17 @@ def p_tables(p):
     p[0] = p[1]
     print(p[0], " - tables")
 
+def p_tables_array_tables(p):
+    "tables : tables table_array"
+
+    array_key = p[2][0]
+    array_table = p[2][1]
+
+    insert_table_on_table_array(array_key, array_table, p[1])
+
+    p[0] = p[1]
+    print(p[0], " - tables")
+
 
 def p_tables_empty(p):
     "tables : "
@@ -95,14 +163,14 @@ def p_table_no_properties(p):
 
 
 def p_table_array(p):
-    "table : LSQBRACKET LSQBRACKET key RSQBRACKET RSQBRACKET properties"
-    p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + "\n" + p[6]
+    "table_array : LSQBRACKET LSQBRACKET key RSQBRACKET RSQBRACKET properties"
+    p[0] = (p[3], p[6])
     print(p[0], " - table array")
 
 
 def p_table_array_no_properties(p):
-    "table : LSQBRACKET LSQBRACKET key RSQBRACKET RSQBRACKET"
-    p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
+    "table_array : LSQBRACKET LSQBRACKET key RSQBRACKET RSQBRACKET"
+    p[0] = (p[3], {})
     print(p[0], " - table array")
 
 
@@ -202,7 +270,7 @@ def p_value_OCTAL(p):
 
 def p_value_FLOAT(p):
     "value : FLOAT"
-    p[0] = str(p[1])
+    p[0] = p[1]
     print(p[0], " - value")
 
 
@@ -220,7 +288,7 @@ def p_value_HEXADECIMAL(p):
 
 def p_value_INTEGER(p):
     "value : INTEGER"
-    p[0] = str(p[1])
+    p[0] = p[1]
     print(p[0], " - value")
 
 
@@ -292,69 +360,29 @@ def p_inline_table(p):
 
 
 def p_error(p):
-    print(f"Syntax error in input! - {p[0]}")
+    print(f"Syntax error in input! - {p}")
     parser.success = False
 
+def json_encode(val):
+    if isinstance(val, TableArray):
+        return val.l
 
 parser = yacc.yacc()
 parser.success = True
 
-source2 = """
-
-# This is a TOML document
-
-title = "TOML Example"
-
-[owner]
-"name" = "Tom Preston-Werner"
-
-[database]
-enabled = true
-ports = [ 8000, 8001, 8002 ]
-data = [ ["delta", "phi"], "asd" ]
-temp_targets = [ { yo = 2 }, "79.5", 72.0 ]
-
-[servers]
-
-[servers.alpha]
-ip = "10.0.0.1"
-role = "frontend"
-
-[servers.beta]
-ip = "10.0.0.2"
-role = "backend"
-
-[servers.beta.yep]
-
-[[asd]]
-bsd = "csd"
-
-[[asd]]
-
-"""
-
 source = """
-
 # This is a TOML document
 
 title = "TOML Example"
 
 [owner]
-"name" = "Tom Preston-Werner"
-other.thing = 2
-other.yep = 3
+name = "Tom Preston-Werner"
 
 [database]
 enabled = true
 ports = [ 8000, 8001, 8002 ]
-data = [ ["delta", "phi"], "asd" ]
-temp_targets = [ { yo = 2 }, "79.5", 72.0 ]
-
-[asd]
-yep = 2
-
-[asd.bsd]
-asd = 2
+data = [ ["delta", "phi"], [3.14] ]
+temp_targets = { cpu = 79.5 }
 
 [servers]
 
@@ -366,14 +394,24 @@ role = "frontend"
 ip = "10.0.0.2"
 role = "backend"
 
-[servers.beta.yep]
+[[arr]]
+bsd = "csd"
+e = 3
+
+[arr.adhfs]
+s = 2
+t = 4
+
+[[arr.yep]]
+dsa = 2
+g = 2
 
 """
 
 result = parser.parse(source)
 
 if parser.success:
-    print(json.dumps(result, indent=2))
+    print(json.dumps(result, indent=2, default=json_encode))
 else:
     print("Parsing unsuccessful")
 
