@@ -200,7 +200,7 @@ def p_properties_one(p):
         d = {key[i]: d}
 
     p[0] = d
-    print(p[0], " - properties one")
+    print(p[0], " - properties")
 
 
 def p_property(p):
@@ -342,6 +342,18 @@ def p_list(p):
     print(p[0], " - list")
 
 
+def p_list_comma(p):
+    "list : LSQBRACKET list_values COMMA RSQBRACKET"
+    p[0] = p[2]
+    print(p[0], " - list")
+
+
+def p_list_empty(p):
+    "list : LSQBRACKET RSQBRACKET"
+    p[0] = []
+    print(p[0], " - list")
+
+
 def p_list_values(p):
     "list_values : list_values COMMA value"
     p[1].append(p[3])
@@ -356,10 +368,35 @@ def p_list_values_one(p):
 
 
 def p_inline_table(p):
-    "inline_table : LBRACKET properties RBRACKET"
+    "inline_table : LBRACKET it_properties RBRACKET"
     p[0] = p[2]
     print(p[0], " - inline table")
 
+def p_it_properties(p):
+    "it_properties : it_properties COMMA property"
+
+    key = p[3][0]
+    value = p[3][1]
+
+    insert_dotted_key_value_on_table(key, value, p[1])
+
+    p[0] = p[1]
+    print(p[0], " - it_properties")
+
+def p_it_properties_one(p):
+    "it_properties : property"
+
+    key = p[1][0]
+    value = p[1][1]
+
+    key.reverse()
+
+    d = {key[0]: value}
+    for i in range(1, len(key)):
+        d = {key[i]: d}
+
+    p[0] = d
+    print(p[0], " - it_properties")
 
 def p_error(p):
     print(f"Syntax error in input! - {p}")
@@ -376,6 +413,12 @@ source = """
 # This is a TOML document
 
 title = "TOML Example"
+table = {value1 = 1, value2 = 2, value3 = "asd"}
+void = [[[[[]]]]] 
+ints = [
+    1,
+    2, #this is ok
+]
 
 [owner]
 name = "Tom Preston-Werner"
