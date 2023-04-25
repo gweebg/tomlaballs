@@ -2,6 +2,8 @@ import ply.yacc as yacc
 from lexer import tokens
 import json
 
+from utils import to_bool
+
 
 # asd.bsd = 2 asd.csd.dsd = 3
 def insert_dotted_key_value_on_table(key, value, table):
@@ -202,13 +204,13 @@ def p_value_OCTAL(p):
 
 def p_value_FLOAT(p):
     "value : FLOAT"
-    p[0] = str(p[1])
+    p[0] = float(p[1])
     print(p[0], " - value")
 
 
 def p_value_BOOL(p):
     "value : BOOL"
-    p[0] = p[1]
+    p[0] = to_bool(p[1])
     print(p[0], " - value")
 
 
@@ -220,7 +222,7 @@ def p_value_HEXADECIMAL(p):
 
 def p_value_INTEGER(p):
     "value : INTEGER"
-    p[0] = str(p[1])
+    p[0] = int(p[1])
     print(p[0], " - value")
 
 
@@ -292,7 +294,7 @@ def p_inline_table(p):
 
 
 def p_error(p):
-    print(f"Syntax error in input! - {p[0]}")
+    print(f"Syntax error in input! - {p}")
     parser.success = False
 
 

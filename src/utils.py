@@ -2,6 +2,15 @@ from enum import Enum
 from datetime import datetime
 
 
+def to_bool(token: str) -> bool:
+
+    if token == 'true':
+        return True
+
+    if token == 'false':
+        return False
+
+
 class DateType(Enum):
 
     OFFSET_DATETIME = 1
