@@ -102,7 +102,7 @@ class TomlLexer:
 
     # Misc
 
-    t_ignore_COMMENT = r'\#.*'
+    t_ANY_ignore_COMMENT = r'\#.*'
 
     t_ANY_ignore = ' \t\n'
 
