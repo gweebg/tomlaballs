@@ -6,3 +6,10 @@ class InvalidDatetimeFormat(Exception):
         
         error_message: str = f"Invalid {token.type} format:{token.lexer.lineno}:{token.lexpos}: {token.value}"
         super().__init__(error_message)
+
+
+class IllegalCharacterException(Exception):
+
+    def __init__(self, char: str):
+        error_message: str = f"Invalid character '{char}'"
+        super().__init__(error_message)

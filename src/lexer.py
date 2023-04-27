@@ -3,7 +3,7 @@ import re
 
 from ply.lex import LexToken
 
-from exceptions import InvalidDatetimeFormat
+from exceptions import InvalidDatetimeFormat, IllegalCharacterException
 from utils import DateValidator, DateType
 
 
@@ -108,6 +108,7 @@ class TomlLexer:
 
     def t_ANY_error(self, t):
         print("Illegal character '%s'" % t.value[0])
+        # raise IllegalCharacterException(t.value[0])
         t.lexer.skip(1)
 
     # Keys

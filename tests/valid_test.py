@@ -1,7 +1,8 @@
 import sys
 
-sys.path.insert(1, '/home/guilherme/Documents/Compilers/tomlaballs/src')
+from src.exceptions import IllegalCharacterException
 
+sys.path.insert(1, '../src')
 from sint import parser
 
 import pytest
@@ -16,9 +17,10 @@ from datetime import date, datetime
 def json_serial(obj):
     """JSON serializer for objects not serializable by default json code"""
 
-    if isinstance(obj, (datetime, date)):
-        return obj.isoformat()
-    raise TypeError("Type %s not serializable" % type(obj))
+    return str(obj)
+    # if isinstance(obj, (datetime, date)):
+    #     return obj.isoformat()
+    # raise TypeError("Type %s not serializable" % type(obj))
 
 
 BASE_PATH: str = "./valid/"
