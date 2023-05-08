@@ -194,9 +194,24 @@ class TomlLexer:
         return t
 
     # Number token definitions.
-    def t_VALUE_FLOAT(self, t):
-        r'(\+|-)?(\d(\d|_\d)*(\.\d(\d|_\d)*)?([eE](\+|-)?\d(\d|_\d)*)?|nan|inf)'
-        t.value = float(t.value)
+
+    def t_VALUE_HEXADECIMAL(self, t):
+        r'0x[0-9A-Fa-f]([0-9A-Fa-f]|_[0-9A-Fa-f])*'
+        t.value = int(t.value, 16)
+        if t.lexer.array_num == 0:
+            t.lexer.begin('INITIAL')
+        return t
+
+    def t_VALUE_BINARY(self, t):
+        r'0b[01]([01]|_[01])*'
+        t.value = int(t.value, 2)
+        if t.lexer.array_num == 0:
+            t.lexer.begin('INITIAL')
+        return t
+
+    def t_VALUE_OCTAL(self, t):
+        r'0o[0-7]([0-7]|_[0-9])*'
+        t.value = int(t.value, 8)
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
         return t
@@ -208,20 +223,9 @@ class TomlLexer:
             t.lexer.begin('INITIAL')
         return t
 
-    def t_VALUE_HEXADECIMAL(self, t):
-        r'0x[0-9A-Fa-f]([0-9A-Fa-f]|_[0-9A-Fa-f])*'
-        if t.lexer.array_num == 0:
-            t.lexer.begin('INITIAL')
-        return t
-
-    def t_VALUE_BINARY(self, t):
-        r'0b[01]([01]|_[01])*'
-        if t.lexer.array_num == 0:
-            t.lexer.begin('INITIAL')
-        return t
-
-    def t_VALUE_OCTAL(self, t):
-        r'0o[0-7]([0-7]|_[0-9])*'
+    def t_VALUE_FLOAT(self, t):
+        r'(\+|-)?(\d(\d|_\d)*(\.\d(\d|_\d)*)?([eE](\+|-)?\d(\d|_\d)*)?|nan|inf)'
+        t.value = float(t.value)
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
         return t
