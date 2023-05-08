@@ -195,7 +195,7 @@ class TomlLexer:
 
     # Number token definitions.
     def t_VALUE_FLOAT(self, t):
-        r'(\+|-)?(\d(\d|_\d)*\.\d(\d|_\d)*([eE](\+|-)?\d(\d|_\d)*)?|nan|inf)'
+        r'(\+|-)?(\d(\d|_\d)*(\.\d(\d|_\d)*)?([eE](\+|-)?\d(\d|_\d)*)?|nan|inf)'
         t.value = float(t.value)
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
