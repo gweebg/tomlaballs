@@ -8,8 +8,13 @@ from utils import DateValidator, DateType
 
 
 def validate_date_format(token: LexToken, fmt: DateType):
-    if not DateValidator(token.value, fmt).validate():
+
+    valid, fmt = DateValidator(token.value, fmt).validate()
+
+    if not valid:
         raise InvalidDatetimeFormat(token)
+
+    return fmt
 
 
 class TomlLexer:
@@ -166,7 +171,14 @@ class TomlLexer:
 
     def t_VALUE_OFFSET_DATETIME(self, t):
         r'\d{4}-\d{2}-\d{2}[Tt ](\d{2}:\d{2}:\d{2}(\.\d+)?([Zz]|([-+]\d{2}:\d{2})))'
-        validate_date_format(t, DateType.OFFSET_DATETIME)
+
+        t.value = t.value.upper()
+
+        print("OFFSET")
+
+        formatted_as: str = validate_date_format(t, DateType.OFFSET_DATETIME)
+        t.value = DateValidator.normalize(t.value, formatted_as, DateType.OFFSET_DATETIME)
+
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
 
@@ -174,13 +186,23 @@ class TomlLexer:
 
     def t_VALUE_LOCAL_DATETIME(self, t):
         r'\d{4}-\d{2}-\d{2}[Tt ](\d{2}:\d{2}:\d{2}(\.\d+)?)'
-        validate_date_format(t, DateType.LOCAL_DATETIME)
+
+        print("LOCAL")
+
+        t.value = t.value.upper()
+
+        formatted_as: str = validate_date_format(t, DateType.LOCAL_DATETIME)
+        t.value = DateValidator.normalize(t.value, formatted_as, DateType.LOCAL_DATETIME)
+
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
         return t
 
     def t_VALUE_LOCAL_DATE(self, t):
         r'\d{4}-\d{2}-\d{2}'
+
+        print("LOCAL DATE")
+
         validate_date_format(t, DateType.LOCAL_DATE)
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
@@ -188,7 +210,11 @@ class TomlLexer:
 
     def t_VALUE_LOCAL_TIME(self, t):
         r'(\d{2}:\d{2}:\d{2}(\.\d+)?)'
-        validate_date_format(t, DateType.LOCAL_TIME)
+
+        print(t.value)
+        formatted_as: str = validate_date_format(t, DateType.LOCAL_TIME)
+        t.value = DateValidator.normalize(t.value, formatted_as, DateType.LOCAL_TIME)
+
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
         return t

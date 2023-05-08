@@ -28,22 +28,26 @@ class DateValidator:
 
         self.formats: dict[DateType, list[str]] = {
 
-            DateType.OFFSET_DATETIME: ['%Y-%m-%dT%H:%M:%SZ',
-                                       '%Y-%m-%dT%H:%M:%S%z',
+            DateType.OFFSET_DATETIME: ['%Y-%m-%dT%H:%M:%S%z',
                                        '%Y-%m-%dT%H:%M:%S.%f%z',
-                                       '%Y-%m-%d %H:%M:%SZ'],
+                                       '%Y-%m-%d %H:%M:%S%z',
+                                       '%Y-%m-%dT%H:%M%z',
+                                       '%Y-%m-%dT%H:%M.%f%z',
+                                       '%Y-%m-%d %H:%M%z'],
 
             DateType.LOCAL_DATETIME: ['%Y-%m-%dT%H:%M:%S.%f%z',
                                       '%Y-%m-%dT%H:%M:%S.%f',
-                                      '%Y-%m-%dT%H:%M:%SZ',
-                                      '%Y-%m-%dT%H:%M:%S'],
+                                      '%Y-%m-%dT%H:%M:%S%z',
+                                      '%Y-%m-%dT%H:%M:%S',
+                                      '%Y-%m-%d %H:%M:%S%z',
+                                      '%Y-%m-%d %H:%M:%S'],
 
             DateType.LOCAL_DATE: ['%Y-%m-%d'],
             DateType.LOCAL_TIME: ['%H:%M:%S.%f', '%H:%M:%S']
 
         }
 
-    def validate(self) -> bool:
+    def validate(self) -> tuple[bool, str]:
 
         formats: list[str] = self.formats.get(self.type)
 
@@ -53,12 +57,20 @@ class DateValidator:
             try:
                 datetime.strptime(self.token, fmt)
                 valid = True
-                break
+                return valid, fmt
 
             except ValueError:
                 pass
 
-        return valid
+        return valid, ""
+
+    @staticmethod
+    def normalize(value: str, formatted_as: str, date_type: DateType) -> str:
+
+        if date_type == DateType.LOCAL_TIME:
+            return str(datetime.strptime(value, formatted_as).time())
+
+        return str(datetime.strptime(value, formatted_as))
 
 
 """

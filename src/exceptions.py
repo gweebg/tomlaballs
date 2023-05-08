@@ -4,7 +4,7 @@ class InvalidDatetimeFormat(Exception):
     
     def __init__(self, token: LexToken):
         
-        error_message: str = f"Invalid {token.type} format:{token.lexer.lineno}:{token.lexpos}: {token.value}"
+        error_message: str = f"Invalid {token.type} format:{token.lexer.lineno}:{token.lexpos}::{token.value}"
         super().__init__(error_message)
 
 
