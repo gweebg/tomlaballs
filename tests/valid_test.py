@@ -3,10 +3,12 @@ import tomllib
 
 import os
 import json
-import sys
 
-sys.path.insert(1, '../src/parser')
-from grammar import parser
+# import sys
+# sys.path.insert(1, '../src/parser')
+# from src import parser
+
+from src.parser.grammar import parser
 
 
 BASE_PATH: str = "./valid/"
