@@ -1,13 +1,12 @@
-import sys
-
-sys.path.insert(1, '../src/parser')
-from grammar import parser
-
 import pytest
 import tomllib
 
 import os
 import json
+import sys
+
+sys.path.insert(1, '../src/parser')
+from grammar import parser
 
 
 BASE_PATH: str = "./valid/"
