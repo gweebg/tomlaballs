@@ -1,9 +1,7 @@
-from typing import Optional
-
 import ply.lex as lex
 import re
 
-from ply.lex import LexToken, Lexer
+from ply.lex import LexToken
 
 from exceptions import InvalidDatetimeFormat
 from utils import DateValidator, DateType
@@ -142,12 +140,12 @@ class TomlLexer:
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
 
-        t.value = t.value.rstrip('"').lstrip('"')
+        t.value = str(t.value).replace("'", "")
 
         return t
 
     def t_VALUE_MULTILINE_STRING(self, t):
-        r'"""([^\\]|\\(.|\n)|\n)*?"{3,5}'
+        r'"""([^\\]|\\(.|\n)|\n)*?"{3,5}"""([^\\]|\\(.|\n)|\n)*?"{3,5}'
 
         t.value = re.sub(r"\\(\n|\r\n)\s+", "", t.value)
 

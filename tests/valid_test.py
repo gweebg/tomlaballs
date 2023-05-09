@@ -1,9 +1,7 @@
 import sys
 
-from src.exceptions import IllegalCharacterException
-
-sys.path.insert(1, '../src')
-from sint import parser
+sys.path.insert(1, '../src/parser')
+from grammar import parser
 
 import pytest
 import tomllib

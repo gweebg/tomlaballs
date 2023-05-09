@@ -4,7 +4,9 @@ import json
 from utils import to_bool
 
 class TableArray:
-    l:list
+
+    l: list
+
     def __init__(self) -> None:
         self.l = []
     

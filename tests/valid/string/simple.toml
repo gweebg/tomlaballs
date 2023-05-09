@@ -1,1 +1,3 @@
 answer = "You are not drinking enough whisky."
+question = 'Hello this is a string literal!'
+is_this_it = 'This literal has an escape char \t here!'
