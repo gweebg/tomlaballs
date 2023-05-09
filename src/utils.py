@@ -3,7 +3,6 @@ from datetime import datetime
 
 
 def to_bool(token: str) -> bool:
-
     if token == 'true':
         return True
 
@@ -28,22 +27,31 @@ class DateValidator:
 
         self.formats: dict[DateType, list[str]] = {
 
-            DateType.OFFSET_DATETIME: ['%Y-%m-%dT%H:%M:%S%z',
-                                       '%Y-%m-%dT%H:%M:%S.%f%z',
-                                       '%Y-%m-%d %H:%M:%S%z',
-                                       '%Y-%m-%dT%H:%M%z',
-                                       '%Y-%m-%dT%H:%M.%f%z',
-                                       '%Y-%m-%d %H:%M%z'],
+            DateType.OFFSET_DATETIME: [
+                '%Y-%m-%dT%H:%M:%S%z',
+                '%Y-%m-%dT%H:%M:%S.%f%z',
+                '%Y-%m-%dT%H:%M%z',
+                '%Y-%m-%d %H:%M:%S.%f%z',
+                '%Y-%m-%d %H:%M:%S%z',
+                '%Y-%m-%d %H:%M%z'
+            ],
 
-            DateType.LOCAL_DATETIME: ['%Y-%m-%dT%H:%M:%S.%f%z',
-                                      '%Y-%m-%dT%H:%M:%S.%f',
-                                      '%Y-%m-%dT%H:%M:%S%z',
-                                      '%Y-%m-%dT%H:%M:%S',
-                                      '%Y-%m-%d %H:%M:%S%z',
-                                      '%Y-%m-%d %H:%M:%S'],
+            DateType.LOCAL_DATETIME: [
+                '%Y-%m-%dT%H:%M',
+                '%Y-%m-%dT%H:%M:%S.%f',
+                '%Y-%m-%dT%H:%M:%S',
+                '%Y-%m-%d %H:%M:%S%z',
+                '%Y-%m-%d %H:%M:%S',
+                '%Y-%m-%d %H:%M'
+            ],
 
             DateType.LOCAL_DATE: ['%Y-%m-%d'],
-            DateType.LOCAL_TIME: ['%H:%M:%S.%f', '%H:%M:%S']
+
+            DateType.LOCAL_TIME: [
+                '%H:%M:%S.%f',
+                '%H:%M:%S',
+                '%H:%M'
+            ]
 
         }
 
@@ -71,23 +79,3 @@ class DateValidator:
             return str(datetime.strptime(value, formatted_as).time())
 
         return str(datetime.strptime(value, formatted_as))
-
-
-"""
-if __name__ == '__main__':
-
-    dates = [
-        ("1979-05-27T07:32:00Z", DateType.OFFSET_DATETIME),
-        ("1979-05-27T00:32:00-07:00", DateType.OFFSET_DATETIME),
-        ("1979-05-27T00:32:00.999999-07:00", DateType.OFFSET_DATETIME),
-        ("1979-05-27 07:32:00Z", DateType.OFFSET_DATETIME),
-        ("1979-05-27T07:32:00", DateType.LOCAL_DATETIME),  #
-        ("1979-05-27T00:32:00.999999", DateType.LOCAL_DATETIME),
-        ("1979-05-27", DateType.LOCAL_DATE),
-        ("07:32:00", DateType.LOCAL_TIME),
-        ("00:32:00.999999", DateType.LOCAL_TIME)
-    ]
-
-    for date in dates:
-        print(DateValidator(date[0], date[1]).validate())
-"""

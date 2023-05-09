@@ -11,17 +11,6 @@ import tomllib
 import os
 import json
 
-from datetime import date, datetime
-
-
-def json_serial(obj):
-    """JSON serializer for objects not serializable by default json code"""
-
-    return str(obj)
-    # if isinstance(obj, (datetime, date)):
-    #     return obj.isoformat()
-    # raise TypeError("Type %s not serializable" % type(obj))
-
 
 BASE_PATH: str = "./valid/"
 
@@ -32,7 +21,7 @@ def parse(content: str):
     result = parser.parse(content)
 
     if parser.success:
-        return json.dumps(result, default=json_serial)
+        return json.dumps(result, default=str)
 
     else:
         return "Failed to parse content."
@@ -46,7 +35,7 @@ class TestValid:
             file_content: str = file.read()
 
         output: str = parse(file_content)
-        expected_content: str = json.dumps(tomllib.loads(file_content), default=json_serial)
+        expected_content: str = json.dumps(tomllib.loads(file_content), default=str)
 
         return output, expected_content
 

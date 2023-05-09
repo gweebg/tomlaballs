@@ -170,11 +170,11 @@ class TomlLexer:
     # Date token definiton.
 
     def t_VALUE_OFFSET_DATETIME(self, t):
-        r'\d{4}-\d{2}-\d{2}[Tt ](\d{2}:\d{2}:\d{2}(\.\d+)?([Zz]|([-+]\d{2}:\d{2})))'
+        r'\d{4}-\d{2}-\d{2}[Tt ](\d{2}:\d{2}(:\d{2}(\.\d+)?)?([Zz]|([-+]\d{2}:\d{2})))'
 
         t.value = t.value.upper()
 
-        print("OFFSET")
+        print("OFFSET DATETIME")
 
         formatted_as: str = validate_date_format(t, DateType.OFFSET_DATETIME)
         t.value = DateValidator.normalize(t.value, formatted_as, DateType.OFFSET_DATETIME)
@@ -185,9 +185,9 @@ class TomlLexer:
         return t
 
     def t_VALUE_LOCAL_DATETIME(self, t):
-        r'\d{4}-\d{2}-\d{2}[Tt ](\d{2}:\d{2}:\d{2}(\.\d+)?)'
+        r'\d{4}-\d{2}-\d{2}[Tt ](\d{2}:\d{2}(:\d{2}(\.\d+)?)?)'
 
-        print("LOCAL")
+        print("LOCAL DATETIME")
 
         t.value = t.value.upper()
 
@@ -209,17 +209,18 @@ class TomlLexer:
         return t
 
     def t_VALUE_LOCAL_TIME(self, t):
-        r'(\d{2}:\d{2}:\d{2}(\.\d+)?)'
+        r'(\d{2}:\d{2}(:\d{2}(\.\d+)?)?)'
 
-        print(t.value)
+        print("LOCAL TIME")
         formatted_as: str = validate_date_format(t, DateType.LOCAL_TIME)
         t.value = DateValidator.normalize(t.value, formatted_as, DateType.LOCAL_TIME)
 
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
+
         return t
 
-    # Number token definitions.
+        # Number token definitions.
 
     def t_VALUE_HEXADECIMAL(self, t):
         r'0x[0-9A-Fa-f]([0-9A-Fa-f]|_[0-9A-Fa-f])*'
@@ -242,16 +243,17 @@ class TomlLexer:
             t.lexer.begin('INITIAL')
         return t
 
-    def t_VALUE_INTEGER(self, t):
-        r'(\+|-)?\d(\d|_\d)*'
-        t.value = int(t.value)
+    def t_VALUE_FLOAT(self, t):
+        r'((?=.*[eE\.])([-+]?(?:\d+(?:_\d+)*(?:\.\d*(?:_\d+)*)?|\.\d+(?:_\d+)*)(?:[eE][-+]?\d+(?:_\d+)*)?)|((\+|\-)?nan)|((\+|\-)?inf))'
+        #(\+|-)?(\d(\d|_\d)*(\.\d(\d|_\d)*)?([eE](\+|-)?\d(\d|_\d)*)?|nan|inf)
+        t.value = float(t.value)
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
         return t
 
-    def t_VALUE_FLOAT(self, t):
-        r'(\+|-)?(\d(\d|_\d)*(\.\d(\d|_\d)*)?([eE](\+|-)?\d(\d|_\d)*)?|nan|inf)'
-        t.value = float(t.value)
+    def t_VALUE_INTEGER(self, t):
+        r'(\+|-)?\d(\d|_\d)*'
+        t.value = int(t.value)
         if t.lexer.array_num == 0:
             t.lexer.begin('INITIAL')
         return t
