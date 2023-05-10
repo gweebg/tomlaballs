@@ -14,8 +14,8 @@ async function convertFromToml(tomlData) {
 
     });
 
-  const { output, error, exitCode } = await response.json();
-  return { output, error, exitCode };
+  const { result, valid, message } = await response.json();
+  return { result, valid, message };
 
 }
 

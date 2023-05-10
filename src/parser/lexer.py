@@ -8,7 +8,6 @@ from src.parser.utils import DateValidator, DateType
 
 
 def validate_date_format(token: LexToken, fmt: DateType):
-
     valid, fmt = DateValidator(token.value, fmt).validate()
 
     if not valid:
@@ -127,19 +126,19 @@ class TomlLexer:
     def t_VALUE_STRING(self, t):
         r'"([^\\]|\\.)*?"'
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         t.value = t.value.rstrip('"').lstrip('"')
 
-        #t.value = convert_escape_chars(t.value)        
+        # t.value = convert_escape_chars(t.value)
 
         return t
 
     def t_VALUE_STRING_LITERAL(self, t):
         r"'.*?'"
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         t.value = t.value.rstrip("'").lstrip("'")
@@ -150,9 +149,9 @@ class TomlLexer:
         r'"""([^\\]|\\(.|\n)|\n)*?"{3,5}"""([^\\]|\\(.|\n)|\n)*?"{3,5}'
 
         t.value = re.sub(r"\\(\n|\r\n)\s+", "", t.value)
-       # t.value = convert_escape_chars(t.value)
+        # t.value = convert_escape_chars(t.value)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
@@ -160,7 +159,7 @@ class TomlLexer:
     def t_VALUE_MULTILINE_STRING_LITERAL(self, t):
         r"'''(.|\n)*?'{3,5}"
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
@@ -179,7 +178,7 @@ class TomlLexer:
         formatted_as: str = validate_date_format(t, DateType.OFFSET_DATETIME)
         t.value = DateValidator.normalize(t.value, formatted_as, DateType.OFFSET_DATETIME)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
@@ -192,7 +191,7 @@ class TomlLexer:
         formatted_as: str = validate_date_format(t, DateType.LOCAL_DATETIME)
         t.value = DateValidator.normalize(t.value, formatted_as, DateType.LOCAL_DATETIME)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
@@ -201,7 +200,7 @@ class TomlLexer:
         r'\d{4}-\d{2}-\d{2}'
 
         validate_date_format(t, DateType.LOCAL_DATE)
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
@@ -212,7 +211,7 @@ class TomlLexer:
         formatted_as: str = validate_date_format(t, DateType.LOCAL_TIME)
         t.value = DateValidator.normalize(t.value, formatted_as, DateType.LOCAL_TIME)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
@@ -226,7 +225,7 @@ class TomlLexer:
 
         t.value = int(t.value, 16)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
@@ -236,7 +235,7 @@ class TomlLexer:
 
         t.value = int(t.value, 2)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
@@ -246,7 +245,7 @@ class TomlLexer:
 
         t.value = int(t.value, 8)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
@@ -256,7 +255,7 @@ class TomlLexer:
 
         t.value = float(t.value)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
@@ -266,7 +265,7 @@ class TomlLexer:
 
         t.value = int(t.value)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
@@ -274,36 +273,38 @@ class TomlLexer:
     def t_VALUE_BOOL(self, t):
         r'true|false'
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
 
-def convert_escape_chars(s:str) -> str:
+
+def convert_escape_chars(s: str) -> str:
     esc = {
-        r'b':'\b',
-        r't':'\t',
-        r'n':'\n',
-        r'f':'\f',
-        r'r':'\r',
-        r'"':'\"',
-        '\\':'\\'
+        r'b': '\b',
+        r't': '\t',
+        r'n': '\n',
+        r'f': '\f',
+        r'r': '\r',
+        r'"': '\"',
+        '\\': '\\'
     }
-    
-    for i in range(len(s)-1):
-        if s[i]=='\\':
-            if s[i+1] in esc:
-                s = s[:i] + esc[s[i+1]] + s[i+2:]
 
-            elif s[i+1] == 'u':
-                code = chr(int(s[i+2:i+6],16))
-                s = s[:i] + code + s[i+6:]
+    for i in range(len(s) - 1):
+        if s[i] == '\\':
+            if s[i + 1] in esc:
+                s = s[:i] + esc[s[i + 1]] + s[i + 2:]
 
-            elif s[i+1] == 'U':
-                code = chr(int(s[i+2:i+10],16))
-                s = s[:i] + code + s[i+10:]
+            elif s[i + 1] == 'u':
+                code = chr(int(s[i + 2:i + 6], 16))
+                s = s[:i] + code + s[i + 6:]
+
+            elif s[i + 1] == 'U':
+                code = chr(int(s[i + 2:i + 10], 16))
+                s = s[:i] + code + s[i + 10:]
 
     return s
+
 
 tLex = TomlLexer()
 tLex.build()
