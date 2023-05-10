@@ -415,6 +415,7 @@ source = """
 # This is a TOML document
 
 title = "TOML Example"
+list = [ " \\", ",]
 table = {value1 = 1, value2 = 2, value3 = "asd"}
 void = [[[[[]]]]] 
 ints = [
@@ -455,7 +456,20 @@ g = 2
 
 """
 
-result = parser.parse(source)
+source2 = """
+asd = [
+    {value1 = 1, value2 = 2, value3 = "asd"}
+]
+list = [ " \\", ",2]
+
+"""
+#import sys
+#
+#for line in sys.stdin:
+#    source2 += line
+#    print("line: ", line)
+
+result = parser.parse(source2)
 
 if parser.success:
     print(json.dumps(result, indent=2, default=json_encode))
