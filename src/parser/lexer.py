@@ -132,7 +132,7 @@ class TomlLexer:
 
         t.value = t.value.rstrip('"').lstrip('"')
 
-        t.value = convert_escape_chars(t.value)        
+        #t.value = convert_escape_chars(t.value)        
 
         return t
 
@@ -150,7 +150,7 @@ class TomlLexer:
         r'"""([^\\]|\\(.|\n)|\n)*?"{3,5}"""([^\\]|\\(.|\n)|\n)*?"{3,5}'
 
         t.value = re.sub(r"\\(\n|\r\n)\s+", "", t.value)
-        t.value = convert_escape_chars(t.value)
+       # t.value = convert_escape_chars(t.value)
 
         if t.lexer.array_num == 0 or t.lexer.inline_table_num>0:
             t.lexer.begin('INITIAL')

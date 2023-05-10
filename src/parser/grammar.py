@@ -1,7 +1,10 @@
 import ply.yacc as yacc
-from lexer import tokens
+
 import json
-from utils import to_bool
+
+from src.parser.lexer import tokens
+from src.parser.utils import to_bool
+
 
 class TableArray:
 
@@ -9,7 +12,7 @@ class TableArray:
 
     def __init__(self) -> None:
         self.l = []
-    
+
     def __len__(self):
         return len(self.l)
     
@@ -469,13 +472,13 @@ list = [ " \\", ",2]
 #    source2 += line
 #    print("line: ", line)
 
-result = parser.parse(source2)
-
-if parser.success:
-    print(json.dumps(result, indent=2, default=json_encode))
-else:
-    print("Parsing unsuccessful")
-
-import tomllib
-
-print("toml lib:\n", tomllib.loads(source))
+#result = parser.parse(source2)
+#
+#if parser.success:
+#    print(json.dumps(result, indent=2, default=json_encode))
+#else:
+#    print("Parsing unsuccessful")
+#
+#import tomllib
+#
+#print("toml lib:\n", tomllib.loads(source))
