@@ -13,3 +13,9 @@ class IllegalCharacterException(Exception):
     def __init__(self, char: str):
         error_message: str = f"Invalid character '{char}'"
         super().__init__(error_message)
+
+
+class UnexcapedBackslashException(Exception):
+
+    def __init__(self, error_message: str):
+        super().__init__(error_message)

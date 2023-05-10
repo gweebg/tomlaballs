@@ -8,19 +8,22 @@ import json
 # sys.path.insert(1, '../src/parser')
 # from src import parser
 
-from src.parser.grammar import parser
+from src.parser.grammar import parser,TableArray
 
 
 BASE_PATH: str = "./valid/"
 
+def json_encode(val):
+    if isinstance(val, TableArray):
+        return val.l
 
-def parse(content: str):
+def parse(content: str) :
     parser.success = True
 
     result = parser.parse(content)
 
     if parser.success:
-        return json.dumps(result, default=str)
+        return result
 
     else:
         return "Failed to parse content."
@@ -29,14 +32,14 @@ def parse(content: str):
 class TestValid:
 
     @staticmethod
-    def get_value_and_expected(filename: str, suite_name: str) -> (str, str):
+    def get_value_and_expected(filename: str, suite_name: str) -> (dict, dict):
         with open(os.path.join(BASE_PATH, suite_name + "/" + filename)) as file:
             file_content: str = file.read()
 
-        output: str = parse(file_content)
-        expected_content: str = json.dumps(tomllib.loads(file_content), default=str)
+        output_dict = parse(file_content)
+        expected_dict = tomllib.loads(file_content)
 
-        return output, expected_content
+        return output_dict, expected_dict
 
     @pytest.mark.parametrize("filename", filter(lambda f: f.endswith(".toml"), list(os.listdir(BASE_PATH + "array"))))
     def test_array(self, filename: str):

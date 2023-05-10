@@ -248,97 +248,97 @@ def p_key_term_string_literal(p):
 def p_value_string(p):
     "value : STRING"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value string")
 
 
 def p_value_string_literal(p):
     "value : STRING_LITERAL"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value string literal")
 
 
 def p_value_multiline_string(p):
     "value : MULTILINE_STRING"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value multiline string")
 
 
 def p_value_multiline_string_literal(p):
     "value : MULTILINE_STRING_LITERAL"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value multiline str literal")
 
 
 def p_value_OCTAL(p):
     "value : OCTAL"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value octal")
 
 
 def p_value_FLOAT(p):
     "value : FLOAT"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value float")
 
 
 def p_value_BOOL(p):
     "value : BOOL"
     p[0] = to_bool(p[1])
-    print(p[0], " - value")
+    print(p[0], " - value bool")
 
 
 def p_value_HEXADECIMAL(p):
     "value : HEXADECIMAL"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value hex")
 
 
 def p_value_INTEGER(p):
     "value : INTEGER"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value integer")
 
 
 def p_value_BINARY(p):
     "value : BINARY"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value binary")
 
 
 def p_value_OFFSET_DATETIME(p):
     "value : OFFSET_DATETIME"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value offset datetime")
 
 
 def p_value_LOCAL_DATETIME(p):
     "value : LOCAL_DATETIME"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value local datetime")
 
 
 def p_value_LOCAL_DATE(p):
     "value : LOCAL_DATE"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value local date")
 
 
 def p_value_LOCAL_TIME(p):
     "value : LOCAL_TIME"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value local time")
 
 
 def p_value_list(p):
     "value : list"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value list")
 
 
 def p_value_inline_table(p):
     "value : inline_table"
     p[0] = p[1]
-    print(p[0], " - value")
+    print(p[0], " - value it")
 
 
 def p_list(p):
@@ -375,6 +375,11 @@ def p_list_values_one(p):
 def p_inline_table(p):
     "inline_table : LBRACKET it_properties RBRACKET"
     p[0] = p[2]
+    print(p[0], " - inline table")
+
+def p_inline_table_empty(p):
+    "inline_table : LBRACKET RBRACKET"
+    p[0] = {}
     print(p[0], " - inline table")
 
 def p_it_properties(p):
@@ -459,13 +464,10 @@ g = 2
 
 """
 
-source2 = """
-asd = [
-    {value1 = 1, value2 = 2, value3 = "asd"}
-]
-list = [ " \\", ",2]
+source2 = '''
+test = "\\"one\\""
+'''
 
-"""
 #import sys
 #
 #for line in sys.stdin:
@@ -481,4 +483,4 @@ list = [ " \\", ",2]
 #
 #import tomllib
 #
-#print("toml lib:\n", tomllib.loads(source))
+#print("toml lib:\n", json.dumps(tomllib.loads(source2)))

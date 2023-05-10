@@ -3,7 +3,7 @@ import re
 
 from ply.lex import LexToken
 
-from src.parser.exceptions import InvalidDatetimeFormat
+from src.parser.exceptions import InvalidDatetimeFormat, UnexcapedBackslashException
 from src.parser.utils import DateValidator, DateType
 
 
@@ -111,45 +111,24 @@ class TomlLexer:
 
     def t_STRING_KEY(self, t):
         r'"([^\\]|\\.)*?"'
-        t.value = t.value.rstrip('"').lstrip('"')
+        t.value = t.value.removeprefix('"').removesuffix('"')
         return t
 
     def t_STRING_LITERAL_KEY(self, t):
         r"'.*?'"
-        t.value = t.value.rstrip("'").lstrip("'")
+        t.value = t.value.removeprefix("'").removesuffix("'")
         return t
 
     #############################
     # String token definitions. #
     #############################
 
-    def t_VALUE_STRING(self, t):
-        r'"([^\\]|\\.)*?"'
-
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
-            t.lexer.begin('INITIAL')
-
-        t.value = t.value.rstrip('"').lstrip('"')
-
-        # t.value = convert_escape_chars(t.value)
-
-        return t
-
-    def t_VALUE_STRING_LITERAL(self, t):
-        r"'.*?'"
-
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
-            t.lexer.begin('INITIAL')
-
-        t.value = t.value.rstrip("'").lstrip("'")
-
-        return t
-
     def t_VALUE_MULTILINE_STRING(self, t):
-        r'"""([^\\]|\\(.|\n)|\n)*?"{3,5}"""([^\\]|\\(.|\n)|\n)*?"{3,5}'
+        r'"""([^\\]|(\\(.|\n))|\n)*?"{3,5}'
 
-        t.value = re.sub(r"\\(\n|\r\n)\s+", "", t.value)
-        # t.value = convert_escape_chars(t.value)
+        t.value = re.sub(r"\\\s*(\n|\r\n)\s*", "", t.value)
+        t.value = t.value.removeprefix('"""').removesuffix('"""').removeprefix('\n')
+        t.value = convert_escape_chars(t.value)
 
         if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
@@ -159,10 +138,34 @@ class TomlLexer:
     def t_VALUE_MULTILINE_STRING_LITERAL(self, t):
         r"'''(.|\n)*?'{3,5}"
 
+        t.value = t.value.removeprefix("'''").removesuffix("'''").removeprefix('\n')
         if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
         return t
+
+    def t_VALUE_STRING(self, t):
+        r'"([^\\]|\\.)*?"'
+
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+            t.lexer.begin('INITIAL')
+
+        t.value = t.value.removeprefix('"').removesuffix('"')
+
+        t.value = convert_escape_chars(t.value)
+
+        return t
+
+    def t_VALUE_STRING_LITERAL(self, t):
+        r"'.*?'"
+
+        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+            t.lexer.begin('INITIAL')
+
+        t.value = t.value.removeprefix("'").removesuffix("'")
+
+        return t
+
 
     ##############################################
     # Date, Time and Datetime token definitions. #
@@ -289,8 +292,8 @@ def convert_escape_chars(s: str) -> str:
         r'"': '\"',
         '\\': '\\'
     }
-
-    for i in range(len(s) - 1):
+    i = 0
+    while i < len(s) - 1:
         if s[i] == '\\':
             if s[i + 1] in esc:
                 s = s[:i] + esc[s[i + 1]] + s[i + 2:]
@@ -302,6 +305,9 @@ def convert_escape_chars(s: str) -> str:
             elif s[i + 1] == 'U':
                 code = chr(int(s[i + 2:i + 10], 16))
                 s = s[:i] + code + s[i + 10:]
+            else:
+                raise UnexcapedBackslashException('In string: ' + s)
+        i += 1
 
     return s
 
