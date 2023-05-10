@@ -2,20 +2,17 @@ import pytest
 import tomllib
 
 import os
-import json
-
-# import sys
-# sys.path.insert(1, '../src/parser')
-# from src import parser
 
 from src.parser.grammar import parser,TableArray
 
 
 BASE_PATH: str = "./valid/"
 
+
 def json_encode(val):
     if isinstance(val, TableArray):
         return val.l
+
 
 def parse(content: str) :
     parser.success = True

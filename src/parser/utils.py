@@ -1,5 +1,5 @@
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, time, date
 
 
 def to_bool(token: str) -> bool:
@@ -73,9 +73,12 @@ class DateValidator:
         return valid, ""
 
     @staticmethod
-    def normalize(value: str, formatted_as: str, date_type: DateType) -> str:
+    def normalize(value: str, formatted_as: str, date_type: DateType) -> time | datetime | date:
 
         if date_type == DateType.LOCAL_TIME:
-            return str(datetime.strptime(value, formatted_as).time())
+            return datetime.strptime(value, formatted_as).time()
 
-        return str(datetime.strptime(value, formatted_as))
+        if date_type == DateType.LOCAL_DATE:
+            return datetime.strptime(value, formatted_as).date()
+
+        return datetime.strptime(value, formatted_as)

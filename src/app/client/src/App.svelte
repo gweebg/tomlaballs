@@ -4,7 +4,6 @@
   import {shortcut} from "./lib/scripts/shortcut.js";
 
   let tomlValue = "";
-  let jsonValue = "";
 
   const convert = async (data) => {
 
@@ -12,9 +11,13 @@
 
     const {result, valid, message} = await convertFromToml(data);
 
+    let resultJson = JSON.parse(result);
+
     if (valid) {
-      jsonValue = result;
-    } else jsonValue = message;
+      document.getElementById('json').innerHTML = JSON.stringify(resultJson, undefined, 4);
+    } else {
+      document.getElementById('json').innerHTML = message;
+    }
 
   }
 
@@ -37,7 +40,7 @@
               bind:value={tomlValue}
               use:shortcut={{control: true, code: 'Enter', callback: () => convert(tomlValue)}}></textarea>
 
-      <textarea bind:value={jsonValue} name="json_value" id="json" cols="70" rows="30" readonly placeholder="The JSON output shows up here! Press CTRL + ENTER to convert!"></textarea>
+      <textarea name="json_value" id="json" cols="70" rows="30" readonly placeholder="The JSON output shows up here! Press CTRL + ENTER to convert!"></textarea>
 
     </form>
 

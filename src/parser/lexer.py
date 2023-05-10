@@ -8,6 +8,7 @@ from src.parser.utils import DateValidator, DateType
 
 
 def validate_date_format(token: LexToken, fmt: DateType):
+
     valid, fmt = DateValidator(token.value, fmt).validate()
 
     if not valid:
@@ -176,10 +177,9 @@ class TomlLexer:
 
         t.value = t.value.upper()
 
-        print("OFFSET DATETIME")
-
         formatted_as: str = validate_date_format(t, DateType.OFFSET_DATETIME)
         t.value = DateValidator.normalize(t.value, formatted_as, DateType.OFFSET_DATETIME)
+        print(type(t.value))
 
         if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
@@ -202,7 +202,9 @@ class TomlLexer:
     def t_VALUE_LOCAL_DATE(self, t):
         r'\d{4}-\d{2}-\d{2}'
 
-        validate_date_format(t, DateType.LOCAL_DATE)
+        formatted_as: str = validate_date_format(t, DateType.LOCAL_DATE)
+        t.value = DateValidator.normalize(t.value, formatted_as, DateType.LOCAL_DATE)
+
         if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
             t.lexer.begin('INITIAL')
 
