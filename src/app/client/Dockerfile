@@ -1,17 +1,18 @@
-#
-FROM python:3.11
+FROM node:12 AS build
 
-#
-WORKDIR /api
+WORKDIR /app
 
-#
-COPY ./requirements.txt /code/requirements.txt
+COPY ./package.json ./
+COPY ./package-lock.json ./
 
-#
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN npm install
 
-#
-COPY ./app /code/app
+COPY . ./
+RUN npm run build
 
-#
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+FROM nginx:1.19-alpine as deploy-static
+
+WORKDIR /usr/share/nginx/html
+RUN rm -rf ./*
+COPY --from=build /app/build .
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

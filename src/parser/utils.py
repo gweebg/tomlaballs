@@ -11,7 +11,6 @@ def to_bool(token: str) -> bool:
 
 
 class DateType(Enum):
-
     OFFSET_DATETIME = 1
     LOCAL_DATETIME = 2
     LOCAL_DATE = 3
@@ -82,3 +81,60 @@ class DateValidator:
             return datetime.strptime(value, formatted_as).date()
 
         return datetime.strptime(value, formatted_as)
+
+
+class TableArray:
+    l: list
+
+    def __init__(self) -> None:
+        self.l = []
+
+    def __len__(self):
+        return len(self.l)
+
+    def __str__(self):
+        return str(self.l)
+
+    def __repr__(self):
+        return repr(self.l)
+
+    def append(self, val):
+        self.l.append(val)
+
+    def get_last(self):
+        return self.l[len(self.l) - 1]
+
+
+class JsonNormalizer:
+
+    def __init__(self, toml_dict: dict):
+        self.dict: dict = toml_dict
+        self.__normalized: dict = {}
+
+    def normalize(self) -> dict:
+
+        if not self.dict:
+            return {}
+
+        self.__normalized = self.dict
+        stack: list[dict] = [self.__normalized]
+
+        while stack:
+
+            current_dict: dict = stack.pop()
+
+            for (key, value) in current_dict.items():
+
+                if isinstance(value, dict):
+                    stack.append(value)
+
+                elif isinstance(value, datetime | time | date):
+                    current_dict[key] = str(value)
+
+                elif isinstance(value, TableArray):
+                    current_dict[key] = value.l
+
+                else:
+                    current_dict[key] = value
+
+        return self.__normalized

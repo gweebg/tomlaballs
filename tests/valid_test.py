@@ -3,7 +3,8 @@ import tomllib
 
 import os
 
-from src.parser.grammar import parser,TableArray
+from src.parser.grammar import parser
+from src.parser.utils import TableArray
 
 
 BASE_PATH: str = "./valid/"
@@ -15,26 +16,23 @@ def json_encode(val):
 
 
 def parse(content: str):
-    parser.success = True
 
+    parser.success = True
     result = parser.parse(content)
 
-    if parser.success:
-        return result
-
-    else:
-        return "Failed to parse content."
+    return result if parser.success else "Failed to parse content."
 
 
 class TestValid:
 
     @staticmethod
     def get_value_and_expected(filename: str, suite_name: str) -> (dict, dict):
+
         with open(os.path.join(BASE_PATH, suite_name + "/" + filename)) as file:
             file_content: str = file.read()
 
-        output_dict = parse(file_content)
-        expected_dict = tomllib.loads(file_content)
+        output_dict: dict = parse(file_content)
+        expected_dict: dict = tomllib.loads(file_content)
 
         return output_dict, expected_dict
 

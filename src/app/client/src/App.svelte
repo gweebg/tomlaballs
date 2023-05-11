@@ -7,13 +7,10 @@
 
   const convert = async (data) => {
 
-    console.log("At 'convert'!");
-
     const {result, valid, message} = await convertFromToml(data);
 
-    let resultJson = JSON.parse(result);
-
     if (valid) {
+      let resultJson = JSON.parse(result);
       document.getElementById('json').innerHTML = JSON.stringify(resultJson, undefined, 4);
     } else {
       document.getElementById('json').innerHTML = message;

@@ -3,38 +3,16 @@ import ply.yacc as yacc
 import json
 
 from src.parser.lexer import tokens
-from src.parser.utils import to_bool
-
-
-class TableArray:
-
-    l: list
-
-    def __init__(self) -> None:
-        self.l = []
-
-    def __len__(self):
-        return len(self.l)
-    
-    def __str__(self):
-        return str(self.l)
-
-    def __repr__(self):
-        return repr(self.l)
-
-    def append(self, val):
-        self.l.append(val)
-    
-    def get_last(self):
-        return self.l[len(self.l)-1]
+from src.parser.utils import to_bool, TableArray
 
 
 def insert_dotted_key_value_on_table(key, value, table):
 
-    i = 0
+    i: int = 0
     d = table
 
     while i < len(key):
+
         if isinstance(d, TableArray):
             d = d.get_last()
 
@@ -61,7 +39,7 @@ def insert_dotted_key_value_on_table(key, value, table):
 
     d[key[i]] = value
 
-# asd.bsd 
+
 def insert_table_on_table_array(key, value, table):
 
     i = 0
@@ -98,6 +76,7 @@ def insert_table_on_table_array(key, value, table):
         ta = TableArray()
         ta.append(value)
         d[key[i]] = ta
+
 
 def p_toml(p):
     "toml : top_level tables"
@@ -473,7 +452,7 @@ source2 = '''
 #    source2 += line
 #    print("line: ", line)
 
-#result = parser.parse(source2)
+# result = parser.parse(source2)
 #
 #if parser.success:
 #    print(json.dumps(result, indent=2, default=json_encode))
