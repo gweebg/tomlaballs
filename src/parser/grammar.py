@@ -3,38 +3,16 @@ import ply.yacc as yacc
 import json
 
 from src.parser.lexer import tokens
-from src.parser.utils import to_bool
-
-
-class TableArray:
-
-    l: list
-
-    def __init__(self) -> None:
-        self.l = []
-
-    def __len__(self):
-        return len(self.l)
-    
-    def __str__(self):
-        return str(self.l)
-
-    def __repr__(self):
-        return repr(self.l)
-
-    def append(self, val):
-        self.l.append(val)
-    
-    def get_last(self):
-        return self.l[len(self.l)-1]
+from src.parser.utils import to_bool, TableArray
 
 
 def insert_dotted_key_value_on_table(key, value, table):
 
-    i = 0
+    i: int = 0
     d = table
 
     while i < len(key):
+
         if isinstance(d, TableArray):
             d = d.get_last()
 
@@ -61,7 +39,7 @@ def insert_dotted_key_value_on_table(key, value, table):
 
     d[key[i]] = value
 
-# asd.bsd 
+
 def insert_table_on_table_array(key, value, table):
 
     i = 0
@@ -98,6 +76,7 @@ def insert_table_on_table_array(key, value, table):
         ta = TableArray()
         ta.append(value)
         d[key[i]] = ta
+
 
 def p_toml(p):
     "toml : top_level tables"
@@ -419,62 +398,13 @@ def json_encode(val):
 parser = yacc.yacc()
 parser.success = True
 
-source = """
-# This is a TOML document
-
-title = "TOML Example"
-list = [ " \\", ",]
-table = {value1 = 1, value2 = 2, value3 = "asd"}
-void = [[[[[]]]]] 
-ints = [
-    1,
-    2, #this is ok
-]
-
-[owner]
-name = "Tom Preston-Werner"
-
-[database]
-enabled = true
-ports = [ 8000, 8001, 8002 ]
-data = [ ["delta", "phi"], [3.14] ]
-temp_targets = { cpu = 79.5 }
-
-[servers]
-
-[servers.alpha]
-ip = "10.0.0.1"
-role = "frontend"
-
-[servers.beta]
-ip = "10.0.0.2"
-role = "backend"
-
-[[arr]]
-bsd = "csd"
-e = 3
-
-[arr.adhfs]
-s = 2
-t = 4
-
-[[arr.yep]]
-dsa = 2
-g = 2
-
-"""
-
-source2 = '''
-test = "\\"one\\""
-'''
-
 #import sys
 #
 #for line in sys.stdin:
 #    source2 += line
 #    print("line: ", line)
 
-#result = parser.parse(source2)
+# result = parser.parse(source2)
 #
 #if parser.success:
 #    print(json.dumps(result, indent=2, default=json_encode))
