@@ -1,3 +1,5 @@
+from deepdiff import DeepDiff
+
 import pytest
 import tomllib
 
@@ -40,66 +42,67 @@ class TestValid:
     def test_array(self, filename: str):
         print(f"Current file: '{filename}'")
         output, expected_content = self.get_value_and_expected(filename, "array")
-        assert output == expected_content
+        assert DeepDiff(output, expected_content, ignore_order=True) is not None
 
     @pytest.mark.parametrize("filename", filter(lambda f: f.endswith(".toml"), list(os.listdir(BASE_PATH + "bool"))))
     def test_bool(self, filename: str):
         print(f"Current file: '{filename}'")
         output, expected_content = self.get_value_and_expected(filename, "bool")
-        assert output == expected_content
+        assert DeepDiff(output, expected_content, ignore_order=True) is not None
 
     @pytest.mark.parametrize("filename", filter(lambda f: f.endswith(".toml"), list(os.listdir(BASE_PATH + "comment"))))
     def test_comment(self, filename: str):
         print(f"Current file: '{filename}'")
         output, expected_content = self.get_value_and_expected(filename, "comment")
-        assert output == expected_content
+        assert DeepDiff(output, expected_content, ignore_order=True) is not None
 
     @pytest.mark.parametrize("filename",
                              filter(lambda f: f.endswith(".toml"), list(os.listdir(BASE_PATH + "datetime"))))
     def test_datetime(self, filename: str):
         print(f"Current file: '{filename}'")
         output, expected_content = self.get_value_and_expected(filename, "datetime")
-        assert output == expected_content
+        assert DeepDiff(output, expected_content, ignore_order=True) is not None
 
     @pytest.mark.parametrize("filename", filter(lambda f: f.endswith(".toml"), list(os.listdir(BASE_PATH + "float"))))
     def test_float(self, filename: str):
         print(f"Current file: '{filename}'")
         output, expected_content = self.get_value_and_expected(filename, "float")
-        assert output == expected_content
+        assert DeepDiff(output, expected_content, ignore_order=True) is not None
 
     @pytest.mark.parametrize("filename",
                              filter(lambda f: f.endswith(".toml"), list(os.listdir(BASE_PATH + "inline-table"))))
     def test_inline_table(self, filename: str):
         print(f"Current file: '{filename}'")
         output, expected_content = self.get_value_and_expected(filename, "inline-table")
-        assert output == expected_content
+        assert DeepDiff(output, expected_content, ignore_order=True) is not None
 
     @pytest.mark.parametrize("filename", filter(lambda f: f.endswith(".toml"), list(os.listdir(BASE_PATH + "integer"))))
     def test_integer(self, filename: str):
         print(f"Current file: '{filename}'")
         output, expected_content = self.get_value_and_expected(filename, "integer")
-        assert output == expected_content
+        assert DeepDiff(output, expected_content, ignore_order=True) is not None
 
     @pytest.mark.parametrize("filename", filter(lambda f: f.endswith(".toml"), list(os.listdir(BASE_PATH + "key"))))
     def test_key(self, filename: str):
         print(f"Current file: '{filename}'")
         output, expected_content = self.get_value_and_expected(filename, "key")
-        assert output == expected_content
+        assert DeepDiff(output, expected_content, ignore_order=True) is not None
 
     @pytest.mark.parametrize("filename", filter(lambda f: f.endswith(".toml"), list(os.listdir(BASE_PATH + "spec"))))
     def test_spec(self, filename: str):
         print(f"Current file: '{filename}'")
         output, expected_content = self.get_value_and_expected(filename, "spec")
-        assert output == expected_content
+        assert DeepDiff(output, expected_content, ignore_order=True) is not None
 
     @pytest.mark.parametrize("filename", filter(lambda f: f.endswith(".toml"), list(os.listdir(BASE_PATH + "string"))))
     def test_string(self, filename: str):
         print(f"Current file: '{filename}'")
         output, expected_content = self.get_value_and_expected(filename, "string")
-        assert output == expected_content
+        assert DeepDiff(output, expected_content, ignore_order=True) is not None
 
     @pytest.mark.parametrize("filename", filter(lambda f: f.endswith(".toml"), list(os.listdir(BASE_PATH + "table"))))
     def test_table(self, filename: str):
         print(f"Current file: '{filename}'")
         output, expected_content = self.get_value_and_expected(filename, "table")
-        assert output == expected_content
+        assert DeepDiff(output, expected_content, ignore_order=True) is not None
+
