@@ -465,7 +465,6 @@ g = 2
 """
 
 source2 = '''
-test = "\\"one\\""
 '''
 
 #import sys

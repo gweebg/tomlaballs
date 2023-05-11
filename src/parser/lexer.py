@@ -1,3 +1,5 @@
+from enum import Enum
+
 import ply.lex as lex
 import re
 
@@ -17,14 +19,38 @@ def validate_date_format(token: LexToken, fmt: DateType):
     return fmt
 
 
+class GroupType(Enum):
+    ARRAY = 0
+    INLINE_TABLE = 1
+
+class GroupStack:
+    gt_stack: list
+
+    def __init__(self):
+        self.gt_stack = []
+
+    def push(self, gt:GroupType):
+        self.gt_stack.append(gt)
+
+    def pop(self) -> GroupType|None:
+        return self.gt_stack.pop() if len(self.gt_stack) > 0 else None
+
+    def is_top_array(self) -> bool:
+        return len(self.gt_stack)>0 and self.gt_stack[-1]==GroupType.ARRAY
+
+    def is_top_inline_table(self) -> bool:
+        return len(self.gt_stack)>0 and self.gt_stack[-1]==GroupType.INLINE_TABLE
+
+    def is_empty(self):
+        return len(self.gt_stack)==0
+
 class TomlLexer:
 
     # Building the lexer.
     def build(self, **kwargs):
 
         self.lexer = lex.lex(module=self, **kwargs)
-        self.lexer.array_num = 0
-        self.lexer.inline_table_num = 0
+        self.lexer.group_stack = GroupStack()
 
     def print_toks(self, data):
 
@@ -56,13 +82,13 @@ class TomlLexer:
     def t_ANY_LBRACKET(self, t):
         r'\{'
         t.lexer.begin('INITIAL')
-        t.lexer.inline_table_num += 1
+        t.lexer.group_stack.push(GroupType.INLINE_TABLE)
         return t
 
-    def t_ANY_RBRACKET(self, t):
+    def t_INITIAL_RBRACKET(self, t):
         r'\}'
-        t.lexer.inline_table_num -= 1
-        if t.lexer.inline_table_num == 0 and t.lexer.array_num > 0:
+        t.lexer.group_stack.pop()
+        if t.lexer.group_stack.is_top_array():
             t.lexer.begin('VALUE')
         return t
 
@@ -81,13 +107,13 @@ class TomlLexer:
 
     def t_VALUE_LSQBRACKET(self, t):
         r'\['
-        t.lexer.array_num += 1
+        t.lexer.group_stack.push(GroupType.ARRAY)
         return t
 
     def t_VALUE_RSQBRACKET(self, t):
         r'\]'
-        t.lexer.array_num -= 1
-        if t.lexer.array_num == 0:
+        t.lexer.group_stack.pop()
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
         return t
 
@@ -127,11 +153,10 @@ class TomlLexer:
     def t_VALUE_MULTILINE_STRING(self, t):
         r'"""([^\\]|(\\(.|\n))|\n)*?"{3,5}'
 
-        t.value = re.sub(r"\\\s*(\n|\r\n)\s*", "", t.value)
         t.value = t.value.removeprefix('"""').removesuffix('"""').removeprefix('\n')
         t.value = convert_escape_chars(t.value)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         return t
@@ -140,7 +165,7 @@ class TomlLexer:
         r"'''(.|\n)*?'{3,5}"
 
         t.value = t.value.removeprefix("'''").removesuffix("'''").removeprefix('\n')
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         return t
@@ -148,7 +173,7 @@ class TomlLexer:
     def t_VALUE_STRING(self, t):
         r'"([^\\]|\\.)*?"'
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         t.value = t.value.removeprefix('"').removesuffix('"')
@@ -160,7 +185,7 @@ class TomlLexer:
     def t_VALUE_STRING_LITERAL(self, t):
         r"'.*?'"
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         t.value = t.value.removeprefix("'").removesuffix("'")
@@ -181,7 +206,7 @@ class TomlLexer:
         t.value = DateValidator.normalize(t.value, formatted_as, DateType.OFFSET_DATETIME)
         print(type(t.value))
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         return t
@@ -194,7 +219,7 @@ class TomlLexer:
         formatted_as: str = validate_date_format(t, DateType.LOCAL_DATETIME)
         t.value = DateValidator.normalize(t.value, formatted_as, DateType.LOCAL_DATETIME)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         return t
@@ -205,7 +230,7 @@ class TomlLexer:
         formatted_as: str = validate_date_format(t, DateType.LOCAL_DATE)
         t.value = DateValidator.normalize(t.value, formatted_as, DateType.LOCAL_DATE)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         return t
@@ -216,7 +241,7 @@ class TomlLexer:
         formatted_as: str = validate_date_format(t, DateType.LOCAL_TIME)
         t.value = DateValidator.normalize(t.value, formatted_as, DateType.LOCAL_TIME)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         return t
@@ -230,7 +255,7 @@ class TomlLexer:
 
         t.value = int(t.value, 16)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         return t
@@ -240,7 +265,7 @@ class TomlLexer:
 
         t.value = int(t.value, 2)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         return t
@@ -250,7 +275,7 @@ class TomlLexer:
 
         t.value = int(t.value, 8)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         return t
@@ -260,7 +285,7 @@ class TomlLexer:
 
         t.value = float(t.value)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         return t
@@ -270,7 +295,7 @@ class TomlLexer:
 
         t.value = int(t.value)
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         return t
@@ -278,7 +303,7 @@ class TomlLexer:
     def t_VALUE_BOOL(self, t):
         r'true|false'
 
-        if t.lexer.array_num == 0 or t.lexer.inline_table_num > 0:
+        if t.lexer.group_stack.is_empty() or t.lexer.group_stack.is_top_inline_table():
             t.lexer.begin('INITIAL')
 
         return t
@@ -294,6 +319,7 @@ def convert_escape_chars(s: str) -> str:
         r'"': '\"',
         '\\': '\\'
     }
+    multiline_bs_er = re.compile(r"\\\s*(\n|\r\n)\s*")
     i = 0
     while i < len(s) - 1:
         if s[i] == '\\':
@@ -307,6 +333,11 @@ def convert_escape_chars(s: str) -> str:
             elif s[i + 1] == 'U':
                 code = chr(int(s[i + 2:i + 10], 16))
                 s = s[:i] + code + s[i + 10:]
+
+            elif multiline_bs_er.match(s[i:]):
+                s = multiline_bs_er.sub("", s, 1)
+                continue
+
             else:
                 raise UnexcapedBackslashException('In string: ' + s)
         i += 1

@@ -14,7 +14,7 @@ def json_encode(val):
         return val.l
 
 
-def parse(content: str) :
+def parse(content: str):
     parser.success = True
 
     result = parser.parse(content)
