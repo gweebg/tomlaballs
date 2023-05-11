@@ -116,15 +116,25 @@ class JsonNormalizer:
         if not self.dict:
             return {}
 
-        for (key, value) in self.dict.items():
+        self.__normalized = self.dict
+        stack: list[dict] = [self.__normalized]
 
-            if isinstance(value, datetime | time | date):
-                self.__normalized[key] = str(value)
+        while stack:
 
-            elif isinstance(value, TableArray):
-                self.__normalized[key] = value.l
+            current_dict: dict = stack.pop()
 
-            else:
-                self.__normalized[key] = value
+            for (key, value) in current_dict.items():
+
+                if isinstance(value, dict):
+                    stack.append(value)
+
+                elif isinstance(value, datetime | time | date):
+                    current_dict[key] = str(value)
+
+                elif isinstance(value, TableArray):
+                    current_dict[key] = value.l
+
+                else:
+                    current_dict[key] = value
 
         return self.__normalized
