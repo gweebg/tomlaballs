@@ -2,11 +2,17 @@
 
     import { createEventDispatcher } from 'svelte';
 
-    import {jsonHighlight} from "./scripts/json_prettify.js";
+    import toast, {Toaster} from "svelte-french-toast";
 
+    import {jsonHighlight} from "../scripts/json_prettify.js";
+    import DropdownModal from "./DropdownModal.svelte";
+
+
+    let settingsOpen = false;
+    let indentationSpacing = 4;
     export let content;
 
-    $: jsonHighlighted = jsonHighlight(JSON.stringify(content, null, 4));
+    $: jsonHighlighted = jsonHighlight(JSON.stringify(content, null, indentationSpacing));
     $: jsonStyle = `<style>
                     .string { color: #E69F66; }
                     .number { color: #B5CEA8; }
@@ -40,6 +46,31 @@
 
         clipContent(document.getElementById('out'));
 
+        toast.success('Copied to clipboard!', {
+            position: "bottom-center",
+            style: "border: 1px solid #242424; padding: 16px; color: #242424;",
+            iconTheme: {
+                primary: '#535bf2',
+                secondary: '#FFFAEE'
+            }
+        });
+    }
+
+    const handleSettings = (event) => {
+
+        const button = document.querySelector('.dropdown-container');
+        if (event.target === button && button.contains(event.target)) {
+            settingsOpen = !settingsOpen;
+        }
+    }
+
+    const changeIndentation = (event) => {
+
+        let newIndent = event.detail.value;
+
+        if (newIndent === "TAB") indentationSpacing = "\t";
+        else indentationSpacing = parseInt(newIndent, 10);
+
     }
 
 </script>
@@ -52,7 +83,14 @@
 
         <button on:click={convertDispatch} class="top">Convert</button>
         <button on:click={copyToClipboard} class="top">Copy to Clipboard</button>
-        <button class="top">Settings</button>
+
+        <button on:click={(event) => handleSettings(event)} class="dropdown-container">Settings
+
+            {#if settingsOpen}
+                <DropdownModal on:indentation={changeIndentation}/>
+            {/if}
+
+        </button>
 
     </div>
 
@@ -61,6 +99,8 @@
     </pre>
 
 </div>
+
+<Toaster/>
 
 
 <style>
@@ -87,8 +127,15 @@
     .controls {
         display: flex;
         flex-direction: row;
-        justify-content: space-evenly;
+        justify-content: space-around;
         padding-bottom: 2px;
+    }
+
+    .dropdown-container {
+        flex: 1;
+        display: inline-block;
+        position: relative;
+        margin: 3px;
     }
 
     .top {

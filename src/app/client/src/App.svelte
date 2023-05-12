@@ -3,7 +3,7 @@
   import {convertFromToml} from "./lib/scripts/convert.js";
   import {shortcut} from "./lib/scripts/shortcut.js";
 
-  import TextOutput from "./lib/TextOutput.svelte";
+  import TextOutput from "./lib/components/TextOutput.svelte";
 
   let tomlValue = "";
   let jsonValue = "";
