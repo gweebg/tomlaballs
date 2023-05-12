@@ -16,8 +16,9 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: white;
   text-decoration: inherit;
+  transition: color 0.25s;
 }
 a:hover {
   color: #535bf2;
@@ -45,7 +46,7 @@ h1 {
 #app {
   /*max-width: 1280px;*/
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   text-align: center;
 }
 
@@ -56,7 +57,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #242424;
   cursor: pointer;
   transition: border-color 0.25s;
 }
