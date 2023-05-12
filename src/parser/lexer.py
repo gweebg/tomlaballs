@@ -5,7 +5,7 @@ import re
 
 from ply.lex import LexToken
 
-from src.parser.exceptions import InvalidDatetimeFormat, UnexcapedBackslashException
+from src.parser.exceptions import InvalidDatetimeFormat, UnexcapedBackslashException, IllegalCharacterException
 from src.parser.utils import DateValidator, DateType
 
 
@@ -128,8 +128,8 @@ class TomlLexer:
 
     def t_ANY_error(self, t):
         print("Illegal character '%s'" % t.value[0])
-        # raise IllegalCharacterException(t.value[0])
-        t.lexer.skip(1)
+        raise IllegalCharacterException(t.value[0])
+        # t.lexer.skip(1)
 
     ###########################
     # Keys token definitions. #

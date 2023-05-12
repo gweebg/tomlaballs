@@ -27,7 +27,6 @@
         dispatch('convert', {});
     };
 
-
     const copyToClipboard = () => {
 
         const clipContent = (element) => {
