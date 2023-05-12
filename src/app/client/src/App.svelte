@@ -63,7 +63,7 @@
     </form>
   </div>
 
-  <p class="footer">Check out the project at <a href="https://github.com/gweebg/tomlaballs">tomlaballs</a></p>
+  <p class="footer">Check out the project at <a href="https://github.com/gweebg/tomlaballs" target="_blank">tomlaballs</a></p>
 
 </main>
 

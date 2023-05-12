@@ -44,12 +44,13 @@ class GroupStack:
     def is_empty(self):
         return len(self.gt_stack)==0
 
+
 class TomlLexer:
 
     # Building the lexer.
     def build(self, **kwargs):
 
-        self.lexer = lex.lex(module=self, **kwargs)
+        self.lexer = lex.lex(module=self, **kwargs, reflags=re.UNICODE | re.VERBOSE)
         self.lexer.group_stack = GroupStack()
 
     def print_toks(self, data):
@@ -134,7 +135,7 @@ class TomlLexer:
     # Keys token definitions. #
     ###########################
 
-    t_BARE_KEY = r'[a-zA-Z0-9_-]+'
+    t_BARE_KEY = r'([a-zA-Z0-9_-]|[^\u0000-\u007F])+'
 
     def t_STRING_KEY(self, t):
         r'"([^\\]|\\.)*?"'
