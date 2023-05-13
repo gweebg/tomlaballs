@@ -154,9 +154,10 @@
         font-size: 18px;
         width: 882px;
         height: 700px;
-        overflow: scroll;
+        overflow: auto;
         margin-top: 0;
         margin-bottom: 0;
     }
+
 
 </style>
