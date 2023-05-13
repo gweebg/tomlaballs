@@ -1,22 +1,25 @@
 <script>
 
   import {convertFromToml} from "./lib/scripts/convert.js";
-  import {shortcut} from "./lib/scripts/shortcut.js";
 
   import TextOutput from "./lib/components/TextOutput.svelte";
+  import TextInput from "./lib/components/TextInput.svelte";
 
-  let tomlValue = "";
-  let jsonValue = "";
+  import {jValue, value} from "./lib/stores/valueStore.js";
 
-  const convert = async (data) => {
+  const convert = async () => {
+
+    let data;
+    const unsubscribe = value.subscribe((val) => data = val);
 
     const {result, valid, message} = await convertFromToml(data);
 
-    if (valid) jsonValue = JSON.parse(result);
-    else jsonValue = message;
+    if (valid) jValue.set(JSON.parse(result));
+    else jValue.set(message);
+
+    unsubscribe();
 
   }
-
 
 </script>
 
@@ -36,16 +39,8 @@
 
   <div class="input-grid">
 
-
-      <textarea
-              name="toml_value"
-              id="toml" cols="70"
-              rows="30"
-              placeholder="Insert your TOML code here."
-              bind:value={tomlValue}
-              use:shortcut={{control: true, code: 'Enter', callback: () => convert(tomlValue)}}></textarea>
-
-      <TextOutput on:convert={() => {convert(tomlValue)}} content={jsonValue}/>
+      <TextInput on:converted={convert}/>
+      <TextOutput on:convert={convert} content={$jValue}/>
 
   </div>
 
@@ -69,28 +64,8 @@
     flex-direction: row;
   }
 
-  textarea {
-    resize: none;
-    font-size: 18px;
-    padding: 10px;
-    transition: border-color 0.25s;
-  }
-
-  textarea:hover {
-    border-color: #646cff;
-  }
-
-  textarea:focus {
-    outline: none #646cff;
-  }
-
   p {
     margin: 0;
-    line-height: 1.1;
-  }
-
-  .footer {
-    margin-bottom: 0;
     line-height: 1.1;
   }
 

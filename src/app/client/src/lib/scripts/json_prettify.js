@@ -15,7 +15,6 @@ function jsonHighlight(json) {
         else if (/true|false/.test(match)) cls = 'boolean';
         else if (/null/.test(match)) cls = 'null';
 
-        console.log('<span class="' + cls + '">' + match + '</span>');
         return '<span class="' + cls + '">' + match + '</span>';
     });
 
