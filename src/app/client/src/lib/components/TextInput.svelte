@@ -4,7 +4,7 @@
 
   import {shortcut} from "../scripts/shortcut.js";
 
-  import { createEventDispatcher } from 'svelte';
+  import {afterUpdate, createEventDispatcher} from 'svelte';
   import {value} from "../stores/valueStore.js";
 
   let tomlValue = "";
@@ -34,7 +34,6 @@
                 secondary: '#FFFAEE'
             }
         });
-
   }
 
 </script>
@@ -52,7 +51,7 @@
 
         <textarea
             name="toml_value"
-            id="toml" cols="70"
+            id="toml-text-area" cols="70"
             rows="27"
             placeholder="Insert your TOML code here."
             bind:value={tomlValue}
@@ -65,11 +64,11 @@
 
 <Toaster/>
 
+
 <style>
 
     .field {
         padding: 10px;
-        margin-left: 20px;
         transition: border-color 0.25s;
         width: 892px;
         height: 774px;
