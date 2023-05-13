@@ -127,6 +127,7 @@
         font-size: 18px;
         padding: 30px 10px 10px;
         border: none;
+        background-color: inherit;
     }
 
     textarea:focus {
