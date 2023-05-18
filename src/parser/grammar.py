@@ -137,31 +137,31 @@ def p_tables_empty(p):
 
 
 def p_table(p):
-    "table : LSQBRACKET key RSQBRACKET properties"
-    p[0] = (p[2], p[4])
+    "table : LSQBRACKET key RSQBRACKET line_terminator properties"
+    p[0] = (p[2], p[5])
     print(p[0], " - table")
 
 
 def p_table_no_properties(p):
-    "table : LSQBRACKET key RSQBRACKET"
+    "table : LSQBRACKET key RSQBRACKET line_terminator"
     p[0] = (p[2], {})
     print(p[0], " - table")
 
 
 def p_table_array(p):
-    "table_array : LSQBRACKET LSQBRACKET key RSQBRACKET RSQBRACKET properties"
-    p[0] = (p[3], p[6])
+    "table_array : LSQBRACKET LSQBRACKET key RSQBRACKET RSQBRACKET line_terminator properties"
+    p[0] = (p[3], p[7])
     print(p[0], " - table array")
 
 
 def p_table_array_no_properties(p):
-    "table_array : LSQBRACKET LSQBRACKET key RSQBRACKET RSQBRACKET"
+    "table_array : LSQBRACKET LSQBRACKET key RSQBRACKET RSQBRACKET line_terminator"
     p[0] = (p[3], {})
     print(p[0], " - table array")
 
 
 def p_properties(p):
-    "properties : properties property"
+    "properties : properties property line_terminator"
 
     key = p[2][0]
     value = p[2][1]
@@ -173,7 +173,7 @@ def p_properties(p):
 
 
 def p_properties_one(p):
-    "properties : property"
+    "properties : property line_terminator"
     key = p[1][0]
     value = p[1][1]
 
@@ -387,6 +387,11 @@ def p_it_properties_one(p):
     p[0] = d
     print(p[0], " - it_properties")
 
+def p_line_terminator(p):
+    """line_terminator : END_OF_LINE
+                        | END_OF_FILE"""
+    print("end of line")
+
 def p_error(p):
     print(f"Syntax error in input! - {p}")
     parser.success = False
@@ -443,8 +448,18 @@ g = 2
 
 """
 
-source2 = '''
-'''
+source2 = '''asd =2 
+bsd = 3
+
+eyp = [2,
+5  ,
+7,
+]
+
+csd = {yep=1,yep2=2}
+
+[e]
+ee = "asd"'''
 
 #import sys
 #
@@ -452,13 +467,13 @@ source2 = '''
 #    source2 += line
 #    print("line: ", line)
 
-# result = parser.parse(source2)
+#result = parser.parse(source2)
 #
 #if parser.success:
 #    print(json.dumps(result, indent=2, default=json_encode))
 #else:
 #    print("Parsing unsuccessful")
-#
+
 #import tomllib
 #
 #print("toml lib:\n", json.dumps(tomllib.loads(source2)))

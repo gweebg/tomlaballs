@@ -52,6 +52,7 @@ class TomlLexer:
 
         self.lexer = lex.lex(module=self, **kwargs, reflags=re.UNICODE | re.VERBOSE)
         self.lexer.group_stack = GroupStack()
+        self.lexer.end = False
 
     def print_toks(self, data):
 
@@ -67,11 +68,32 @@ class TomlLexer:
     tokens: tuple[str, ...] = (
 
         'RSQBRACKET', 'LSQBRACKET', 'RBRACKET', 'LBRACKET', 'STRING_LITERAL', 'HEXADECIMAL',
-        'OFFSET_DATETIME', 'LOCAL_DATETIME', 'LOCAL_DATE', 'LOCAL_TIME', 'COMMENT', 'INTEGER',
+        'OFFSET_DATETIME', 'LOCAL_DATETIME', 'LOCAL_DATE', 'LOCAL_TIME', 'END_OF_LINE', 'END_OF_FILE','INTEGER',
         'BINARY', 'EQUALS', 'STRING', 'OCTAL', 'COMMA', 'FLOAT', 'BOOL', 'DOT', 'BARE_KEY',
         'STRING_KEY', 'STRING_LITERAL_KEY', 'MULTILINE_STRING', 'MULTILINE_STRING_LITERAL',
 
     )
+    #############################
+    # End of line/file definitions.#
+    #############################
+
+    def t_ignore_INITIAL_LAST_WHITESPACE(self, t):
+        r'\n+\Z'
+        print("ignore")
+
+    def t_ignore_INITIAL_IRRELEVANT_NEWLINES(self, t):
+        r'(?<!.)\n+'
+
+    def t_INITIAL_END_OF_LINE(self, t):
+        r'\n'
+        return t
+
+    def t_ANY_eof(self, t):
+        if t.lexer.end:
+            return None
+        t.lexer.end = True
+        t.type = "END_OF_FILE"
+        return t
 
     #############################
     # Syntax token definitions. #
@@ -94,7 +116,7 @@ class TomlLexer:
         return t
 
     def t_EQUALS(self, t):
-        r'\='
+        r'\=[ \t]*(?!\n)'
         t.lexer.begin('VALUE')
         return t
 
@@ -124,12 +146,13 @@ class TomlLexer:
 
     t_ANY_ignore_COMMENT = r'\#.*'
 
-    t_ANY_ignore = ' \t\n'
+    t_VALUE_ignore = ' \n\t\r\f\v'
+    t_INITIAL_ignore = ' \t\r\f\v'
 
     def t_ANY_error(self, t):
         print("Illegal character '%s'" % t.value[0])
         raise IllegalCharacterException(t.value[0])
-        # t.lexer.skip(1)
+        #t.lexer.skip(1)
 
     ###########################
     # Keys token definitions. #
