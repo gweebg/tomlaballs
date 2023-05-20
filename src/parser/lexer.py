@@ -79,7 +79,6 @@ class TomlLexer:
 
     def t_ignore_INITIAL_LAST_WHITESPACE(self, t):
         r'\n+\Z'
-        print("ignore")
 
     def t_ignore_INITIAL_IRRELEVANT_NEWLINES(self, t):
         r'(?<!.)\n+'

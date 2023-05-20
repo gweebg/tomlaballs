@@ -83,26 +83,19 @@ class DateValidator:
         return datetime.strptime(value, formatted_as)
 
 
-class TableArray:
-    l: list
-
+class TableArray(list):
     def __init__(self) -> None:
-        self.l = []
-
-    def __len__(self):
-        return len(self.l)
-
-    def __str__(self):
-        return str(self.l)
-
-    def __repr__(self):
-        return repr(self.l)
-
-    def append(self, val):
-        self.l.append(val)
+        super().__init__()
 
     def get_last(self):
-        return self.l[len(self.l) - 1]
+        return self[len(self) - 1]
+
+
+class InlineTable(dict):
+    is_locked = False
+
+    def __init__(self):
+        super().__init__()
 
 
 class JsonNormalizer:
@@ -130,9 +123,6 @@ class JsonNormalizer:
 
                 elif isinstance(value, datetime | time | date):
                     current_dict[key] = str(value)
-
-                elif isinstance(value, TableArray):
-                    current_dict[key] = value.l
 
                 else:
                     current_dict[key] = value

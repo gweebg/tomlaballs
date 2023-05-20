@@ -3,7 +3,7 @@ import ply.yacc as yacc
 import json
 
 from src.parser.lexer import tokens
-from src.parser.utils import to_bool, TableArray
+from src.parser.utils import to_bool, TableArray, InlineTable
 
 
 def insert_dotted_key_value_on_table(key, value, table):
@@ -15,6 +15,11 @@ def insert_dotted_key_value_on_table(key, value, table):
 
         if isinstance(d, TableArray):
             d = d.get_last()
+
+        elif isinstance(d, InlineTable) and d.is_locked:
+            print("-- Error: cannot alter contents of inline table. key: ", key)
+            parser.success = False
+            return
 
         elif not isinstance(d, dict):
             print("-- Error: expected table to insert value of key: ", key)
@@ -49,6 +54,11 @@ def insert_table_on_table_array(key, value, table):
         if isinstance(d, TableArray):
             d = d.get_last()
 
+        elif isinstance(d, InlineTable) and d.is_locked:
+            print("-- Error: cannot alter contents of inline table. key: ", key)
+            parser.success = False
+            return
+
         elif not isinstance(d, dict):
             print("-- Error: expected table to insert value of key: ", key)
             parser.success = False
@@ -60,7 +70,7 @@ def insert_table_on_table_array(key, value, table):
         d = d[key[i]]
         i += 1
 
-    if i==len(key):
+    if i == len(key):
         if not isinstance(d, TableArray):
             print("-- Error: expected table array to insert value of key :", key)
             parser.success = False
@@ -83,13 +93,7 @@ def p_toml(p):
 
     # add to dict
     for key, value in p[1].items():
-
-        if key in p[2]:
-            print("Error: duplicate key found: ", key)
-            parser.success = False
-            continue
-            
-        p[2][key] = value
+        insert_dotted_key_value_on_table(key, value, p[2])
 
     p[0] = p[2]
     print(p[0], " - toml")
@@ -353,12 +357,13 @@ def p_list_values_one(p):
 
 def p_inline_table(p):
     "inline_table : LBRACKET it_properties RBRACKET"
+    p[2].is_locked = True
     p[0] = p[2]
     print(p[0], " - inline table")
 
 def p_inline_table_empty(p):
     "inline_table : LBRACKET RBRACKET"
-    p[0] = {}
+    p[0] = InlineTable()
     print(p[0], " - inline table")
 
 def p_it_properties(p):
@@ -380,9 +385,13 @@ def p_it_properties_one(p):
 
     key.reverse()
 
-    d = {key[0]: value}
+    d = InlineTable()
+    d[key[0]] = value
+
     for i in range(1, len(key)):
-        d = {key[i]: d}
+        td = InlineTable()
+        td[key[i]] = d
+        d = td
 
     p[0] = d
     print(p[0], " - it_properties")
@@ -396,9 +405,6 @@ def p_error(p):
     print(f"Syntax error in input! - {p}")
     parser.success = False
 
-def json_encode(val):
-    if isinstance(val, TableArray):
-        return val.l
 
 parser = yacc.yacc()
 parser.success = True
@@ -448,18 +454,10 @@ g = 2
 
 """
 
-source2 = '''asd =2 
-bsd = 3
-
-eyp = [2,
-5  ,
-7,
-]
-
-csd = {yep=1,yep2=2}
-
-[e]
-ee = "asd"'''
+source2 = '''
+a = {aa = "asd"}
+a.bb = 2
+'''
 
 #import sys
 #
@@ -470,7 +468,7 @@ ee = "asd"'''
 #result = parser.parse(source2)
 #
 #if parser.success:
-#    print(json.dumps(result, indent=2, default=json_encode))
+#    print(json.dumps(result, indent=2))
 #else:
 #    print("Parsing unsuccessful")
 

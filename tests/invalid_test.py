@@ -3,15 +3,9 @@ import pytest
 import os
 
 from src.parser.grammar import parser
-from src.parser.utils import TableArray
 
 
 BASE_PATH: str = "./invalid/"
-
-
-def json_encode(val):
-    if isinstance(val, TableArray):
-        return val.l
 
 
 def parse(content: str):
