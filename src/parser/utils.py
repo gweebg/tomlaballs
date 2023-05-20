@@ -103,6 +103,7 @@ class JsonNormalizer:
     def __init__(self, toml_dict: dict):
         self.dict: dict = toml_dict
         self.__normalized: dict = {}
+        self.json: str = ""
 
     def normalize(self) -> dict:
 
@@ -128,3 +129,32 @@ class JsonNormalizer:
                     current_dict[key] = value
 
         return self.__normalized
+
+    def to_json(self, dictionary: dict) -> str:
+
+        json_string: str = "{"
+
+        for key, value in dictionary.items():
+
+            json_string += f'"{key}": '
+
+            if isinstance(value, dict):
+                json_string += self.to_json(value)  # Run recursively if encounters another dict.
+
+            elif isinstance(value, str):
+                json_string += f'"{value}"'  # Append value if it is a string.
+
+            elif isinstance(value, bool):
+                json_string += f'{str(value).lower()}'  # Convert boolean to lowecase string.
+
+            else:
+                json_string += str(value).replace("'", '"')  # Convert to string and replace quotation marks.
+
+            json_string += ","
+
+        if len(dictionary) > 0:
+            json_string = json_string[:-1]  # Remove the trailing comma.
+
+        return json_string + "}"
+
+
