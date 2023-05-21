@@ -93,7 +93,7 @@ def p_toml(p):
 
     # add to dict
     for key, value in p[1].items():
-        insert_dotted_key_value_on_table(key, value, p[2])
+        insert_dotted_key_value_on_table([key], value, p[2])
 
     p[0] = p[2]
     print(p[0], " - toml")
@@ -455,8 +455,11 @@ g = 2
 """
 
 source2 = '''
-a = {aa = "asd"}
-a.bb = 2
+best-day-ever = 0
+
+[numtheory]
+boring = false
+perfection = [6, 28, 496]
 '''
 
 #import sys
