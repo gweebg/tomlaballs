@@ -153,14 +153,14 @@ def p_table_no_properties(p):
 
 
 def p_table_array(p):
-    "table_array : LSQBRACKET LSQBRACKET key RSQBRACKET RSQBRACKET line_terminator properties"
-    p[0] = (p[3], p[7])
+    "table_array : DOUBLE_LSQBRACKET key DOUBLE_RSQBRACKET line_terminator properties"
+    p[0] = (p[2], p[5])
     print(p[0], " - table array")
 
 
 def p_table_array_no_properties(p):
-    "table_array : LSQBRACKET LSQBRACKET key RSQBRACKET RSQBRACKET line_terminator"
-    p[0] = (p[3], {})
+    "table_array : DOUBLE_LSQBRACKET key DOUBLE_RSQBRACKET line_terminator"
+    p[0] = (p[2], {})
     print(p[0], " - table array")
 
 
@@ -455,11 +455,7 @@ g = 2
 """
 
 source2 = '''
-best-day-ever = 0
 
-[numtheory]
-boring = false
-perfection = [6, 28, 496]
 '''
 
 #import sys
@@ -468,12 +464,12 @@ perfection = [6, 28, 496]
 #    source2 += line
 #    print("line: ", line)
 
-#result = parser.parse(source2)
-#
-#if parser.success:
-#    print(json.dumps(result, indent=2))
-#else:
-#    print("Parsing unsuccessful")
+result = parser.parse(source2)
+
+if parser.success:
+    print(json.dumps(result, indent=2))
+else:
+    print("Parsing unsuccessful")
 
 #import tomllib
 #
