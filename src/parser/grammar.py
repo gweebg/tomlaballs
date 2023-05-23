@@ -455,7 +455,43 @@ g = 2
 """
 
 source2 = '''
+# This is a TOML document. Boom.
 
+title = "TOML Example"
+
+[owner]
+name = "Lance Uppercut"
+dob = 0 # First class dates? Why not?
+
+[database]
+server = "192.168.1.1"
+ports = [ 8001, 8001, 8002 ]
+connection_max = 5000
+enabled = true
+
+[servers]
+
+  # You can indent as you please. Tabs or spaces. TOML don't care.
+  [servers.alpha]
+  ip = "10.0.0.1"
+  dc = "eqdc10"
+
+  [servers.beta]
+  ip = "10.0.0.2"
+  dc = "eqdc10"
+
+[clients]
+data = [ 
+[
+"gamma", 
+"delta"], 
+[1,
+ 2] ]
+
+hosts = [
+  "alpha",
+  "omega"
+]
 '''
 
 #import sys

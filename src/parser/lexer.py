@@ -162,7 +162,7 @@ class TomlLexer:
         t.lexer.is_end_of_statement = True
         return t
 
-    def t_LSQBRACKET(self, t):
+    def t_INITIAL_LSQBRACKET(self, t):
         r'\['
         t.lexer.capture_newlines = True
         return t
@@ -180,8 +180,10 @@ class TomlLexer:
         if t.lexer.group_stack.is_empty():
             t.lexer.begin('INITIAL')
             t.lexer.is_end_of_statement = True
+            t.lexer.capture_newlines = True
 
         if t.lexer.group_stack.is_top_inline_table():
+            t.lexer.capture_newlines = True
             t.lexer.begin('INITIAL')
 
         return t
