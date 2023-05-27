@@ -284,7 +284,6 @@ class TomlLexer:
 
         formatted_as: str = validate_date_format(t, DateType.OFFSET_DATETIME)
         t.value = DateValidator.normalize(t.value, formatted_as, DateType.OFFSET_DATETIME)
-        print(type(t.value))
 
         if t.lexer.group_stack.is_empty():
             t.lexer.begin('INITIAL')
