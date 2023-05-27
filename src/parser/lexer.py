@@ -116,6 +116,8 @@ class TomlLexer:
     def t_ANY_eof(self, t):
         if t.lexer.end:
             t.lexer.end = False
+            t.lexer.is_end_of_statement = False
+            t.lexer.capture_newlines = False
             return None
         t.lexer.end = True
         t.type = "END_OF_FILE"
