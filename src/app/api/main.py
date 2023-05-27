@@ -30,6 +30,8 @@ async def convert(request: ConvertBody):
 
     result, valid, message = parse(request.data)
 
+    print(repr(request.data))
+
     return ConvertResponse(
         result=result,
         valid=valid,

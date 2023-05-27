@@ -1,3 +1,4 @@
+import argparse
 from enum import Enum
 from datetime import datetime, time, date
 
@@ -158,3 +159,9 @@ class JsonNormalizer:
         return json_string + "}"
 
 
+def toml_file(astring: str) -> str:
+
+    if not astring.endswith('.toml'):
+        raise argparse.ArgumentTypeError
+
+    return astring
