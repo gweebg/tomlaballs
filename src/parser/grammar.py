@@ -151,7 +151,7 @@ def p_tables_empty(p):
 
 
 def p_table(p):
-    "table : LSQBRACKET key RSQBRACKET line_terminator properties"
+    "table : LSQBRACKET key RSQBRACKET END_OF_LINE properties"
     p[0] = (p[2], p[5])
     logger.info(f"{p[0]} - table")
 
@@ -163,7 +163,7 @@ def p_table_no_properties(p):
 
 
 def p_table_array(p):
-    "table_array : DOUBLE_LSQBRACKET key DOUBLE_RSQBRACKET line_terminator properties"
+    "table_array : DOUBLE_LSQBRACKET key DOUBLE_RSQBRACKET END_OF_LINE properties"
     p[0] = (p[2], p[5])
     logger.info(f"{p[0]} - table array")
 
