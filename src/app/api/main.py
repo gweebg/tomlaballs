@@ -28,9 +28,13 @@ async def convert(request: ConvertBody):
     if request.convert_lang != "json":
         raise HTTPException(status_code=500, detail="Only JSON conversion is available.")
 
-    result, valid, message = parse(request.data)
+    try:
+        result, valid, message = parse(request.data)
 
-    print(repr(request.data))
+    except Exception:
+        result = ""
+        valid = False
+        message = "Failed to parse content."
 
     return ConvertResponse(
         result=result,

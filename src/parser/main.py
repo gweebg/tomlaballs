@@ -14,6 +14,8 @@ def parse(content: str) -> tuple[str, bool, str]:
     normalized_result: dict = json.normalize()
     result_as_str: str = json.to_json(normalized_result)
 
+    print(result_as_str)
+
     if parser.success:
         return result_as_str, True, ""
 
