@@ -204,12 +204,16 @@ class TomlLexer:
         r'"([^\\\n]|\\.)*?"'
         t.value = t.value.removeprefix('"').removesuffix('"')
         t.lexer.capture_newlines = True
+        t.value = convert_escape_chars(t.value)
+
         return t
 
     def t_STRING_LITERAL_KEY(self, t):
         r"'.*?'"
         t.value = t.value.removeprefix("'").removesuffix("'")
         t.lexer.capture_newlines = True
+        t.value = convert_literal_escapes(t.value)
+
         return t
 
     #############################
@@ -235,6 +239,7 @@ class TomlLexer:
         r"'''(.|\n)*?'{3,5}"
 
         t.value = t.value.removeprefix("'''").removesuffix("'''").removeprefix('\n')
+        t.value = convert_literal_escapes(t.value)
 
         if t.lexer.group_stack.is_empty():
             t.lexer.begin('INITIAL')
@@ -272,6 +277,7 @@ class TomlLexer:
             t.lexer.begin('INITIAL')
 
         t.value = t.value.removeprefix("'").removesuffix("'")
+        t.value = convert_literal_escapes(t.value)
 
         return t
 
@@ -433,25 +439,21 @@ class TomlLexer:
 
 def convert_escape_chars(s: str) -> str:
     esc = {
-        r'b': '\b',
-        r't': '\t',
-        r'n': '\n',
-        r'f': '\f',
-        r'r': '\r',
-        r'"': '\"',
-        '\\': '\\'
+        r'b',
+        r't',
+        r'n',
+        r'f',
+        r'r',
+        r'"',
+        '\\',
+        r'u'
     }
     multiline_bs_er = re.compile(r"\\\s*(\n|\r\n)\s*")
     i = 0
     while i < len(s) - 1:
         if s[i] == '\\':
             if s[i + 1] in esc:
-                s = s[:i] + esc[s[i + 1]] + s[i + 2:]
-
-            elif s[i + 1] == 'u':
-                code = chr(int(s[i + 2:i + 6], 16))
-                s = s[:i] + code + s[i + 6:]
-
+                i += 1
             elif s[i + 1] == 'U':
                 code = chr(int(s[i + 2:i + 10], 16))
                 s = s[:i] + code + s[i + 10:]
@@ -464,6 +466,16 @@ def convert_escape_chars(s: str) -> str:
                 raise UnexcapedBackslashException('In string: ' + s)
         i += 1
 
+    return s
+
+
+def convert_literal_escapes(s: str) -> str:
+    i = 0
+    while i < len(s):
+        if s[i] == '"':
+            s = s[:i] + '\\' + s[i:]
+            i += 1
+        i += 1
     return s
 
 
