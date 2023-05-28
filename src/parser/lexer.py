@@ -201,7 +201,7 @@ class TomlLexer:
         return t
 
     def t_STRING_KEY(self, t):
-        r'"([^\\]|\\.)*?"'
+        r'"([^\\\n]|\\.)*?"'
         t.value = t.value.removeprefix('"').removesuffix('"')
         t.lexer.capture_newlines = True
         return t
@@ -246,7 +246,7 @@ class TomlLexer:
         return t
 
     def t_VALUE_STRING(self, t):
-        r'"([^\\]|\\.)*?"'
+        r'"([^\\\n]|\\.)*?"'
 
         if t.lexer.group_stack.is_empty():
             t.lexer.begin('INITIAL')
@@ -377,7 +377,7 @@ class TomlLexer:
         return t
 
     def t_VALUE_OCTAL(self, t):
-        r'0o[0-7]([0-7]|_[0-9])*'
+        r'0o[0-7]([0-7]|_[0-7])*'
 
         t.value = int(t.value, 8)
 

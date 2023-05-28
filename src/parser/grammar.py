@@ -3,7 +3,7 @@ import logging
 import ply.yacc as yacc
 
 from src.parser.lexer import tokens
-from src.parser.utils import to_bool, TableArray, InlineTable
+from src.parser.utils import to_bool, TableArray, Table
 
 logger = logging.getLogger("yacc_logger")
 
@@ -16,7 +16,6 @@ logger_formatter = logging.Formatter("[%(levelname)s] [%(asctime)s] %(message)s"
 logger_handler.setFormatter(logger_formatter)
 logger.addHandler(logger_handler)
 
-
 def insert_dotted_key_value_on_table(key, value, table):
     i: int = 0
     d = table
@@ -26,12 +25,7 @@ def insert_dotted_key_value_on_table(key, value, table):
         if isinstance(d, TableArray):
             d = d.get_last()
 
-        elif isinstance(d, InlineTable) and d.is_locked:
-            print("-- Error: cannot alter contents of inline table. key: ", key)
-            parser.success = False
-            return
-
-        elif not isinstance(d, dict):
+        elif not isinstance(d, Table):
             print("-- Error: expected table to insert value of key: ", key)
             parser.success = False
             return
@@ -43,12 +37,20 @@ def insert_dotted_key_value_on_table(key, value, table):
         i += 1
 
     if i == len(key):
-        print("-- Error: duplicate key found: ", key)
-        parser.success = False
+        if not isinstance(value, Table) or not isinstance(d, Table) or d.is_locked:
+            print("-- Error: duplicate key found: ", key)
+            parser.success = False
+            return
+        for vkey, vval in value.items():
+            if vkey in d:
+                print("-- Error: duplicate key found: ", vkey)
+                parser.success = False
+                return
+            d[vkey] = vval
         return
 
     while i < len(key) - 1:
-        d[key[i]] = {}
+        d[key[i]] = Table()
         d = d[key[i]]
         i += 1
 
@@ -63,12 +65,7 @@ def insert_table_on_table_array(key, value, table):
         if isinstance(d, TableArray):
             d = d.get_last()
 
-        elif isinstance(d, InlineTable) and d.is_locked:
-            print("-- Error: cannot alter contents of inline table. key: ", key)
-            parser.success = False
-            return
-
-        elif not isinstance(d, dict):
+        elif not isinstance(d, Table):
             print("-- Error: expected table to insert value of key: ", key)
             parser.success = False
             return
@@ -88,7 +85,7 @@ def insert_table_on_table_array(key, value, table):
 
     else:
         while i < len(key) - 1:
-            d[key[i]] = {}
+            d[key[i]] = Table()
             d = d[key[i]]
             i += 1
 
@@ -110,13 +107,14 @@ def p_toml(p):
 
 def p_top_level(p):
     "top_level : properties"
+    p[1].is_locked = True
     p[0] = p[1]
     logger.info(f"{p[0]} - top level")
 
 
 def p_top_level_empty(p):
     "top_level : "
-    p[0] = {}
+    p[0] = Table()
     logger.info(f"{p[0]} - top level empty")
 
 
@@ -146,31 +144,33 @@ def p_tables_array_tables(p):
 
 def p_tables_empty(p):
     "tables : "
-    p[0] = {}
+    p[0] = Table()
     logger.info(f"{p[0]} - tables empty")
 
 
 def p_table(p):
     "table : LSQBRACKET key RSQBRACKET END_OF_LINE properties"
+    p[5].is_locked = True
     p[0] = (p[2], p[5])
     logger.info(f"{p[0]} - table")
 
 
 def p_table_no_properties(p):
     "table : LSQBRACKET key RSQBRACKET line_terminator"
-    p[0] = (p[2], {})
+    p[0] = (p[2], Table())
     logger.info(f"{p[0]} - table")
 
 
 def p_table_array(p):
     "table_array : DOUBLE_LSQBRACKET key DOUBLE_RSQBRACKET END_OF_LINE properties"
+    p[5].is_locked = True
     p[0] = (p[2], p[5])
     logger.info(f"{p[0]} - table array")
 
 
 def p_table_array_no_properties(p):
     "table_array : DOUBLE_LSQBRACKET key DOUBLE_RSQBRACKET line_terminator"
-    p[0] = (p[2], {})
+    p[0] = (p[2], Table())
 
     logger.info(f"{p[0]} - table array")
 
@@ -195,9 +195,12 @@ def p_properties_one(p):
 
     key.reverse()
 
-    d = {key[0]: value}
+    d = Table()
+    d[key[0]] = value
     for i in range(1, len(key)):
-        d = {key[i]: d}
+        td = Table()
+        td[key[i]] = d
+        d = td
 
     p[0] = d
 
@@ -405,7 +408,7 @@ def p_inline_table(p):
 
 def p_inline_table_empty(p):
     "inline_table : LBRACKET RBRACKET"
-    p[0] = InlineTable()
+    p[0] = Table()
 
     logger.info(f"{p[0]} - inline table")
 
@@ -431,11 +434,11 @@ def p_it_properties_one(p):
 
     key.reverse()
 
-    d = InlineTable()
+    d = Table()
     d[key[0]] = value
 
     for i in range(1, len(key)):
-        td = InlineTable()
+        td = Table()
         td[key[i]] = d
         d = td
 

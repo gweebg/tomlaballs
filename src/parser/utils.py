@@ -92,7 +92,7 @@ class TableArray(list):
         return self[len(self) - 1]
 
 
-class InlineTable(dict):
+class Table(dict):
     is_locked = False
 
     def __init__(self):
